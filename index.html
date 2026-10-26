@@ -95,8 +95,21 @@ pre{font:14px/1.5 ui-monospace,Consolas,monospace;padding:12px;border-radius:var
 #berr{color:#ff7a7a;font-size:15px;margin-top:10px;min-height:18px}
 body.noanim #wt span{opacity:1!important;filter:none!important;transform:none!important}
 #req{width:min(460px,100%)!important}
-#mus{position:fixed;left:20px;bottom:20px;z-index:60;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(12px);cursor:pointer;font-size:20px;transition:transform .25s var(--ease),box-shadow .3s}
-#mus:hover{transform:scale(1.1);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 50%,transparent)}
+#np{position:fixed;left:20px;bottom:20px;z-index:60;display:flex;align-items:center;gap:14px;width:min(330px,calc(100vw - 40px));padding:12px 14px;border-radius:calc(var(--radius) + 6px);background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(24px);box-shadow:0 20px 60px rgba(0,0,0,.45),0 0 40px color-mix(in srgb,var(--accent) 25%,transparent);opacity:0;transform:translateY(30px) scale(.94);pointer-events:none;transition:opacity .9s var(--ease),transform .9s var(--ease)}
+#np.on{opacity:1;transform:none;pointer-events:auto}
+#np img{width:68px;height:68px;border-radius:calc(var(--radius) - 2px);object-fit:cover;flex:none;box-shadow:0 8px 24px rgba(0,0,0,.5);transform:scale(.6) rotate(-8deg);filter:blur(10px);transition:transform 1.1s var(--ease) .2s,filter 1.1s .2s}
+#np.on img{transform:none;filter:none}
+#np.on.play img{animation:bob 4s ease-in-out infinite 1.5s}
+@keyframes bob{50%{transform:scale(1.05)}}
+.nt{flex:1;min-width:0}
+.nt b,.nt small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;opacity:0;transform:translateX(-12px);transition:all .8s var(--ease)}
+.nt b{font-size:18px;transition-delay:.5s}.nt small{color:var(--mut);font-size:15px;transition-delay:.7s}
+#np.on .nt b,#np.on .nt small{opacity:1;transform:none}
+.pb{height:4px;border-radius:9px;background:var(--panel2);margin-top:10px;overflow:hidden}.pb i{display:block;height:100%;width:0;background:var(--accent);box-shadow:0 0 10px var(--accent)}
+#mus{flex:none;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--panel2);cursor:pointer;font-size:18px;transition:transform .25s var(--ease)}#mus:hover{transform:scale(1.12)}
+#gate{position:fixed;inset:0;z-index:70;display:none;place-items:center;background:var(--bg)}#gate.on{display:grid}
+#gbtn{padding:18px 36px;border:1px solid var(--accent);border-radius:99px;background:color-mix(in srgb,var(--accent) 16%,transparent);color:#fff;font-size:20px;cursor:pointer;animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 30px color-mix(in srgb,var(--accent) 50%,transparent)}50%{box-shadow:0 0 70px var(--accent);transform:scale(1.04)}}
 #mh{position:absolute;bottom:34px;left:0;right:0;text-align:center;color:var(--mut);font-size:15px;opacity:0;transition:opacity .5s;pointer-events:none}#mh.on{opacity:1}
 .btn.ghost{background:var(--panel2);box-shadow:none;color:var(--text);border:1px solid var(--line)}
 .chat{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;margin-top:8px}
@@ -128,7 +141,8 @@ body.compact nav button span.t{display:none}body.compact #app{grid-template-colu
 <div id="req" class="glass hide"><h1>Получить ключ</h1><div id="rq"></div></div>
 <div id="bot" class="glass hide"><h1>Проверка</h1><p>Подтвердите, что вы не бот: нажмите кнопку и удерживайте.</p><button id="hold" type="button" class="btn"><span id="hl">Удерживайте</span></button><div id="berr"></div></div>
 <div id="intro"><div class="blob b1"></div><div class="blob b2"></div><h1 id="wt">Добро пожаловать</h1><div id="ld"><div class="bar"><i id="pb"></i></div><small id="ls">Подготовка…</small></div><div id="mh">Нажмите в любое место, чтобы включить музыку</div></div>
-<audio id="bgm" src="music.mp3" loop preload="auto"></audio><button id="mus" type="button" aria-label="Музыка">🔊</button>
+<audio id="bgm" src="music.mp3" loop preload="auto"></audio><div id="np"><img src="cover.jpg" alt=""><div class="nt"><b>4runner</b><small>Brenn!</small><div class="pb"><i id="npb"></i></div></div><button id="mus" type="button" aria-label="Музыка">🔊</button></div>
+<div id="gate"><button type="button" id="gbtn">Нажмите, чтобы начать</button></div>
 <div id="app" class="glass hide">
   <nav id="nav"></nav>
   <main id="main"></main>
@@ -327,7 +341,7 @@ matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>S.mode==
 
 /* ---- вступление и проверка ---- */
 let nt;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function boot(){music();
+async function boot(){await music();
   $("#wt").innerHTML=[..."Добро пожаловать"].map((c,i)=>`<span style="animation-delay:${i*60}ms">${c===" "?"&nbsp;":c}</span>`).join("");
   await sleep(2100);$("#ld").classList.add("on");
   const st=[["Проверяем соединение",async()=>{await sleep(500)}],["Загружаем данные",()=>sleep(600)],["Готовим интерфейс",()=>sleep(600)]];
@@ -429,14 +443,18 @@ async function admTab(){
 const bgm=$("#bgm");let muted=store.get("muted",false);bgm.volume=0;
 const mic=()=>{$("#mus").textContent=muted?"🔇":"🔊"};mic();
 function fade(to,ms=1800,end){const f=bgm.volume,t0=performance.now();const st=()=>{const p=Math.min(1,(performance.now()-t0)/ms);bgm.volume=Math.max(0,Math.min(1,f+(to-f)*p));if(p<1)requestAnimationFrame(st);else end&&end()};st()}
-async function play(){if(muted)return true;try{await bgm.play();fade(.45);$("#mh").classList.remove("on");return true}catch{return false}}
+async function play(){if(muted)return true;try{await bgm.play();fade(.45);$("#np").classList.add("play");return true}catch{return false}}
 async function music(){
-  if(await play())return;
-  $("#mh").classList.add("on");
-  const go=()=>{if(bgm.paused)play();["pointerdown","keydown","touchstart"].forEach(e=>removeEventListener(e,go))};
-  ["pointerdown","keydown","touchstart"].forEach(e=>addEventListener(e,go));
+  if(!muted&&!await play()){
+    $("#gate").classList.add("on");
+    await new Promise(r=>$("#gbtn").onclick=r);
+    $("#gate").classList.remove("on");
+    await play();
+  }
+  setTimeout(()=>$("#np").classList.add("on"),500);
 }
-$("#mus").onclick=()=>{muted=!muted;store.set("muted",muted);mic();if(muted)fade(0,500,()=>bgm.pause());else play()};
+bgm.addEventListener("timeupdate",()=>{if(bgm.duration)$("#npb").style.width=bgm.currentTime/bgm.duration*100+"%"});
+$("#mus").onclick=()=>{muted=!muted;store.set("muted",muted);mic();$("#np").classList.toggle("play",!muted);if(muted)fade(0,500,()=>bgm.pause());else play()};
 apply();boot();
 </script>
 </body>
