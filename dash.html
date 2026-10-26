@@ -84,6 +84,16 @@ header{display:flex;justify-content:space-between;max-width:1100px;margin:0 auto
 input[type=range]{padding:0;border:0;background:none;accent-color:var(--a);box-shadow:none}
 .tg{flex:none;width:44px;height:25px;border-radius:99px;border:0;background:rgba(255,255,255,.14);position:relative;cursor:pointer;transition:background .3s}.tg::after{content:"";position:absolute;top:3px;left:3px;width:19px;height:19px;border-radius:50%;background:#fff;transition:transform .35s var(--e)}.tg.on{background:var(--a)}.tg.on::after{transform:translateX(19px)}
 #ts{position:fixed;bottom:24px;left:50%;transform:translate(-50%,20px);padding:12px 18px;border-radius:12px;background:var(--p);backdrop-filter:blur(20px);border:1px solid var(--a);opacity:0;transition:all .35s;z-index:99;pointer-events:none}#ts.on{opacity:1;transform:translate(-50%,0)}
+.tr{overflow-x:hidden;overflow-y:auto;scrollbar-width:thin;scrollbar-color:rgba(255,255,255,.2) transparent;max-height:150px}.tr .li{min-width:0}
+.tt{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.tr small{flex:none;max-width:40%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#pf{position:fixed;right:20px;top:20px;bottom:20px;width:min(360px,calc(100vw - 40px));padding:22px;z-index:20;transform:translateX(125%);transition:transform .5s var(--e);overflow:auto}#pf.on{transform:none}
+#pf h3{display:flex;align-items:center;margin-bottom:14px;font-size:18px}#pf h3 button{margin-left:auto;background:0;border:0;cursor:pointer;font-size:18px}
+.pc{border-radius:16px;overflow:hidden;background:rgba(255,255,255,.05);border:1px solid var(--l)}.pc .bn{height:64px;opacity:.85}
+.ah{position:relative;margin:-32px 0 0 16px;width:68px}.sd{position:absolute;right:-2px;bottom:-2px;width:18px;height:18px;border-radius:50%;border:3px solid #14161d}
+.pb2{padding:8px 16px 16px}.pb2 b{display:block;font-size:18px}.pb2 p{margin-top:10px;font-size:15px;word-break:break-word;white-space:pre-wrap}
+.av{display:inline-grid;place-items:center;border-radius:50%;background-size:cover;background-position:center;font-weight:700;color:#fff;flex:none;border:3px solid #14161d}
+.li .av{border-width:0}
+.seg{display:grid;grid-template-columns:1fr 1fr;gap:8px}.seg button{padding:9px 10px;border-radius:10px;border:1px solid var(--l);background:0;cursor:pointer;text-align:left;font-size:14px}.seg button.on{border-color:var(--a);background:color-mix(in srgb,var(--a) 16%,transparent)}
 body.noanim *{transition:none!important;animation:none!important}
 </style>
 </head>
@@ -99,14 +109,14 @@ body.noanim *{transition:none!important;animation:none!important}
   </form><canvas id="cv"></canvas></div></div>
 
 <div id="app" class="hide">
-  <nav class="g side"><button class="ib on" data-l="Главная" title="Главная"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button><button class="ib" id="gs" data-l="Настройки интерфейса" title="Настройки"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button><button class="ib red" id="out" data-l="Выйти из аккаунта" title="Выйти"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></nav>
+  <nav class="g side"><button class="ib on" data-l="Главная" title="Главная"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button><button class="ib" id="gs" data-l="Настройки интерфейса" title="Настройки"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button><button class="ib" id="gp" data-l="Профиль" title="Профиль"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button><button class="ib red" id="out" data-l="Выйти из аккаунта" title="Выйти"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></nav>
   <header><div class="g pill" id="hi"></div><div class="g pill" id="usr"></div></header>
   <section class="hero"><div id="clk"></div><div id="dt"></div><input id="q" placeholder="Поиск в Google или адрес сайта"></section>
   <main class="grid">
-    <div class="g w"><h3>Друзья</h3><p class="s">Ваш ключ. Отправьте его другу, чтобы он добавил вас.</p><div class="kb" id="mk">…</div><button class="b ghost sm" id="cp" style="margin:8px 0 14px">Копировать ключ</button><div class="row"><input id="fk" placeholder="Ключ друга" autocomplete="off"><button class="b sm" id="fa">Добавить</button></div><div id="fr" style="margin-top:12px"></div></div>
+    <div class="g w"><h3>Друзья</h3><div id="me"></div><div class="row" style="margin-top:14px"><input id="fk" placeholder="Ключ друга" autocomplete="off"><button class="b sm" id="fa">Добавить</button></div><div id="fr" style="margin-top:12px"></div></div>
     <div class="g w" id="wk"></div>
     <div class="g w inf"><h3>О сайте</h3><p><b>Кабинет</b><span>Личный аккаунт. Ваши данные и настройки хранятся на сервере.</span></p><p><b>Ключ доступа</b><span>Подайте заявку, ответ обычно приходит от 10 минут до часа.</span></p><p><b>Друзья</b><span>Добавляются по ключу, друг должен принять заявку. Принявшие видят вашу статистику.</span></p></div>
-    <div class="g w pl" id="pc"><img id="pi" src="cover.jpg" alt=""><b id="pt">4runner</b><span class="s" id="pa">Brenn!</span><div class="pr" id="pb"><i id="pg"></i></div><div class="ctl"><button id="pv" title="Назад">‹</button><button id="pp">▶</button><button id="pn" title="Дальше">›</button></div><div class="tr" id="tr"></div><a class="b ghost" target="_blank" rel="noopener" href="https://music.yandex.ru/playlists/259faa77-4e9d-d3af-987f-728645845248">Плейлист в Яндекс Музыке</a></div>
+    <div class="g w pl" id="pc"><img id="pi" src="cover.jpg" alt=""><b id="pt">4runner</b><span class="s" id="pa">Brenn!</span><div class="pr" id="pb"><i id="pg"></i></div><div class="ctl"><button id="pv" title="Назад">‹</button><button id="pp">▶</button><button id="pn" title="Дальше">›</button></div><div class="s" style="width:100%;text-align:left;margin-top:6px">Плейлист</div><div class="tr" id="tr"></div></div>
     <div class="g w"><h3>Заметки</h3><textarea id="nt" placeholder="Пишите что угодно, сохраняется само"></textarea></div>
     <div class="g w qt"><p id="qp"></p><span class="s" style="margin-top:10px">Фокус на прогрессе, а не на идеале.</span></div>
   </main>
@@ -119,6 +129,13 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="lb">Масштаб интерфейса: <span id="zv"></span>%</div><input type="range" id="rz" min="85" max="125" step="5">
 <div class="tgr"><button class="tg" id="an"></button><div>Плавные анимации<br><span class="s">Переходы и появление блоков</span></div></div>
 <button class="b ghost" id="rs" style="margin-top:26px">Сбросить настройки</button></aside>
+<aside id="pf" class="g"><h3>Профиль<button id="px">✕</button></h3><div id="ppv"></div>
+<div class="lb">Аватар</div><div class="row"><button class="b sm" id="pup">Загрузить фото</button><button class="b sm ghost" id="prm" style="margin:0">Убрать</button></div><input type="file" id="pfi" accept="image/*" hidden>
+<div class="lb">Имя</div><input id="pnm" maxlength="32" placeholder="Как вас называть">
+<div class="lb">Статус</div><div class="seg" id="pst"></div>
+<div class="lb">Цвет баннера</div><div class="sw" id="pbn"></div>
+<div class="lb">Обо мне</div><textarea id="pab" maxlength="200" placeholder="Расскажите о себе" style="height:90px;resize:none"></textarea>
+<div class="lb">Ключ для друзей</div><div class="kb" id="pk">…</div><button class="b ghost" id="pcp">Копировать ключ</button></aside>
 <div id="ts"></div>
 <script>
 const $=i=>document.getElementById(i),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -153,7 +170,7 @@ function start(l){
   $("hi").textContent=(h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер")+", "+l;
   LOGIN=l;$("usr").textContent="@"+l;$("nt").value=D.n||"";
   $("qp").textContent="«Лучший способ предсказать будущее — создать его.»";
-  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();
+  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();
   au.volume=.45;au.play().catch(()=>{});
 }
 function tick(){const d=new Date();$("clk").textContent=d.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});$("dt").textContent=d.toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"})}
@@ -166,23 +183,22 @@ const fm=x=>x<60?Math.round(x)+" с":x<3600?Math.round(x/60)+" мин":Math.floo
 async function sync(act,key){
   const n=Date.now(),dt=document.hidden?0:Math.min(120,(n-lt)/1000);lt=n;
   try{if(!N){if(D.net)N=D.net;else{N=await api("register",{});D.net=N;save()}}
-    F=await api("sync",{...N,name:LOGIN,dt,tab:"Кабинет",nv,act,key});nv=false}catch(e){F=F||{off:1}}
+    F=await api("sync",{...N,name:LOGIN,prof:P,dt,tab:"Кабинет",nv,act,key});nv=false}catch(e){F=F||{off:1}}
   drawF();return F}
 function drawF(){
-  const el=$("fr");if(!F)return;$("mk").textContent=fkey();
+  const el=$("fr");if(!F)return;$("pk").textContent=fkey();
   if(F.off){el.innerHTML='<span class="s">Сервер недоступен</span>';return}
-  const on=t=>Date.now()-t<45000,ic=u=>`<i>${esc((u.name||"?")[0]).toUpperCase()}</i>`;
+  const on=t=>Date.now()-t<45000,nm=u=>esc(u.prof&&u.prof.n||u.name),fs=u=>on(u.last)?((u.prof&&u.prof.st)||"on"):"off",ic=u=>av(u.prof,u.prof&&u.prof.n||u.name,34);
   const bt=(a,k,t,g)=>`<button class="b sm${g?" ghost":""}" style="margin:0" data-a="${a}" data-k="${k}">${t}</button>`;
   const op=[...el.querySelectorAll("details[open]")].map(d=>d.dataset.id);
-  el.innerHTML=F.in.map(u=>`<div class="li">${ic(u)}${esc(u.name)}<span style="margin-left:auto;display:flex;gap:6px">${bt("acc",u.id,"Принять")}${bt("del",u.id,"✕",1)}</span></div>`).join("")
-  +F.out.map(u=>`<div class="li">${ic(u)}${esc(u.name)}<small>ждёт ответа</small>${bt("del",u.id,"✕",1)}</div>`).join("")
+  el.innerHTML=F.in.map(u=>`<div class="li">${ic(u)}${nm(u)}<span style="margin-left:auto;display:flex;gap:6px">${bt("acc",u.id,"Принять")}${bt("del",u.id,"✕",1)}</span></div>`).join("")
+  +F.out.map(u=>`<div class="li">${ic(u)}${nm(u)}<small>ждёт ответа</small>${bt("del",u.id,"✕",1)}</div>`).join("")
   +(F.f.length?F.f.map(u=>{const t=Object.entries(u.tabs||{}).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>esc(TN[k]||k)+": "+fm(v)).join(", ");
-    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${esc(u.name)}<small>${on(u.last)?"в сети":"не в сети"}</small></summary><div class="s">Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div>${bt("del",u.id,"Удалить из друзей",1)}</details>`}).join(""):'<span class="s">Друзей пока нет</span>');
+    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${nm(u)}<small style="color:${ST[fs(u)][1]}">${ST[fs(u)][0]}</small></summary><div class="s">${u.prof&&u.prof.ab?esc(u.prof.ab)+"<br><br>":""}Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div>${bt("del",u.id,"Удалить из друзей",1)}</details>`}).join(""):'<span class="s">Друзей пока нет</span>');
 }
 $("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)};
 $("fa").onclick=async()=>{const v=$("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Сервер недоступен");$("fk").value=""};
 $("fk").onkeydown=e=>e.key==="Enter"&&$("fa").click();
-$("cp").onclick=()=>{if(N){navigator.clipboard.writeText(fkey());toast("Ключ скопирован")}};
 $("nt").oninput=e=>{D.n=e.target.value.slice(0,5000);save()};
 $("out").onclick=out;
 
@@ -204,7 +220,7 @@ async function key(t,go){
 const TR=[{t:"4runner",a:"Brenn!",s:"music.mp3",c:"cover.jpg"}];
 const au=$("au");let ci=0;
 function ld(i,p){ci=(i+TR.length)%TR.length;const x=TR[ci];au.src=x.s;$("pi").src=x.c||"cover.jpg";$("pt").textContent=x.t;$("pa").textContent=x.a;
-  $("tr").innerHTML=TR.map((y,j)=>`<div class="li${j===ci?" cur":""}" data-i="${j}"><i>${j+1}</i>${esc(y.t)}<small>${esc(y.a)}</small></div>`).join("");if(p)au.play().catch(()=>{})}
+  $("tr").innerHTML=TR.map((y,j)=>`<div class="li${j===ci?" cur":""}" data-i="${j}"><i>${j+1}</i><span class="tt">${esc(y.t)}</span><small>${esc(y.a)}</small></div>`).join("");if(p)au.play().catch(()=>{})}
 $("pp").onclick=()=>au.paused?au.play():au.pause();
 $("pn").onclick=()=>ld(ci+1,1);$("pv").onclick=()=>ld(ci-1,1);
 $("tr").onclick=e=>{const r=e.target.closest(".li");if(r)ld(+r.dataset.i,1)};
@@ -227,8 +243,29 @@ $("sws").onclick=e=>{const b=e.target.closest("button");if(b){SET.a=b.dataset.c;
 $("rr").oninput=e=>{SET.r=+e.target.value;ap();sv()};$("rz").oninput=e=>{SET.z=+e.target.value;ap();sv()};
 $("an").onclick=()=>{SET.an=SET.an?0:1;ap();sv()};
 $("rs").onclick=()=>{SET={a:"#ff6b5e",r:18,z:100,an:1};ap();sv()};
-$("gs").onclick=()=>$("set").classList.toggle("on");$("sx").onclick=()=>$("set").classList.remove("on");
+$("gs").onclick=()=>{$("pf").classList.remove("on");$("set").classList.toggle("on")};$("sx").onclick=()=>$("set").classList.remove("on");
 ap();
+
+/* ---- профиль ---- */
+const ST={on:["В сети","#22c55e"],idle:["Не активен","#facc15"],dnd:["Не беспокоить","#ef4444"],off:["Не в сети","#6b7280"]};
+let P={n:"",ab:"",st:"on",bn:"#ff6b5e",av:""};
+const av=(p,name,z)=>`<span class="av" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.42)}px;${p&&p.av?`background-image:url('${p.av}')`:`background:${esc(p&&p.bn||"#ff6b5e")}`}">${p&&p.av?"":esc((name||"?")[0]).toUpperCase()}</span>`;
+function pcard(p,name,login,k){const s=ST[k];return `<div class="pc"><div class="bn" style="background:${esc(p.bn||"#ff6b5e")}"></div><div class="ah">${av(p,name,68)}<i class="sd" style="background:${s[1]}"></i></div><div class="pb2"><b>${esc(name)}</b><span class="s">@${esc(login)} · ${s[0]}</span>${p.ab?`<p>${esc(p.ab)}</p>`:""}</div></div>`}
+function rp(){const c=pcard(P,P.n||LOGIN,LOGIN,P.st);$("ppv").innerHTML=c;$("me").innerHTML=c;
+  document.querySelectorAll("#pst button").forEach(b=>b.classList.toggle("on",b.dataset.s===P.st));
+  document.querySelectorAll("#pbn button").forEach(b=>b.classList.toggle("on",b.dataset.c===P.bn))}
+function pcfg(){Object.assign(P,D.prof||{});$("pnm").value=P.n||"";$("pab").value=P.ab||"";rp()}
+function ps(){D.prof={...P};save();rp()}
+$("pst").innerHTML=Object.entries(ST).map(([k,v])=>`<button data-s="${k}"><span style="color:${v[1]}">●</span> ${v[0]}</button>`).join("");
+$("pbn").innerHTML=CL.map(c=>`<button style="--c:${c}" data-c="${c}"></button>`).join("");
+$("pst").onclick=e=>{const b=e.target.closest("button");if(b){P.st=b.dataset.s;ps()}};
+$("pbn").onclick=e=>{const b=e.target.closest("button");if(b){P.bn=b.dataset.c;ps()}};
+$("pnm").oninput=e=>{P.n=e.target.value;ps()};$("pab").oninput=e=>{P.ab=e.target.value;ps()};
+function fit(f,cb){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=100;const m=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,100,100);cb(c.toDataURL("image/jpeg",.8))};i.src=r.result};r.readAsDataURL(f)}
+$("pup").onclick=()=>$("pfi").click();$("pfi").onchange=e=>{const f=e.target.files[0];if(f)fit(f,u=>{P.av=u;ps()})};
+$("prm").onclick=()=>{P.av="";ps()};
+$("gp").onclick=()=>{$("set").classList.remove("on");$("pf").classList.toggle("on")};$("px").onclick=()=>$("pf").classList.remove("on");
+$("pcp").onclick=()=>{if(N){navigator.clipboard.writeText(fkey());toast("Ключ скопирован")}};
 
 /* ---- старт ---- */
 if(TK)api("me",{token:TK}).then(r=>{Object.assign(D,r.data);start(r.login)}).catch(()=>{localStorage.removeItem("tk");TK=null;showAuth()});else showAuth();

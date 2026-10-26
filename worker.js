@@ -82,6 +82,7 @@ export default{async fetch(req,env){
   // статистика самого пользователя
   const dt=Math.max(0,Math.min(120,+b.dt||0));
   me.name=String(b.name||me.name).slice(0,40);
+  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
   me.secs+=dt;me.last=Date.now();
   if(b.nv)me.visits++;
   if(b.tab&&dt){const t=String(b.tab).slice(0,20);me.tabs[t]=(me.tabs[t]||0)+dt}
@@ -105,7 +106,7 @@ export default{async fetch(req,env){
   }
   await put(id,me);
 
-  const pub=async(x,full)=>{const o=await get(x);return o?(full?{id:x,name:o.name,secs:o.secs,visits:o.visits,last:o.last,tabs:o.tabs}:{id:x,name:o.name}):null};
+  const pub=async(x,full)=>{const o=await get(x);return o?(full?{id:x,name:o.name,prof:o.prof,secs:o.secs,visits:o.visits,last:o.last,tabs:o.tabs}:{id:x,name:o.name,prof:o.prof}):null};
   const all=async(a,f)=>(await Promise.all(a.map(x=>pub(x,f)))).filter(Boolean);
   return J({f:await all(me.f,1),in:await all(me.in),out:await all(me.out),msg});
 }};
