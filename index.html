@@ -15,9 +15,9 @@ button,select,input{font:inherit;color:inherit}
 .hide{display:none!important}
 .glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
 /* login */
-#login,#bot{width:min(380px,100%);padding:34px;border-radius:calc(var(--radius) + 8px);animation:rise .6s var(--ease)}
-#login h1,#bot h1{font-size:30px;margin-bottom:6px}
-#login p,#bot p{color:var(--mut);margin-bottom:22px;font-size:17px}
+#login,#bot,#req{width:min(380px,100%);padding:34px;border-radius:calc(var(--radius) + 8px);animation:rise .6s var(--ease)}
+#login h1,#bot h1,#req h1{font-size:30px;margin-bottom:6px}
+#login p,#bot p,#req p{color:var(--mut);margin-bottom:22px;font-size:17px}
 .field{width:100%;padding:13px 14px;border-radius:var(--radius);background:var(--panel2);border:1px solid var(--line);outline:0;transition:border-color .25s,box-shadow .25s}
 .field:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
 .btn{margin-top:14px;width:100%;padding:13px;border:0;border-radius:var(--radius);background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:transform .2s var(--ease),filter .2s,box-shadow .3s;box-shadow:0 8px 28px color-mix(in srgb,var(--accent) 45%,transparent)}
@@ -94,6 +94,12 @@ pre{font:14px/1.5 ui-monospace,Consolas,monospace;padding:12px;border-radius:var
 #hold{position:relative;overflow:hidden;user-select:none;touch-action:none}#hold::before{content:"";position:absolute;inset:0;width:var(--h,0%);background:rgba(255,255,255,.3)}#hold span{position:relative}
 #berr{color:#ff7a7a;font-size:15px;margin-top:10px;min-height:18px}
 body.noanim #wt span{opacity:1!important;filter:none!important;transform:none!important}
+#req{width:min(460px,100%)!important}
+.btn.ghost{background:var(--panel2);box-shadow:none;color:var(--text);border:1px solid var(--line)}
+.chat{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;margin-top:8px}
+.mg{max-width:85%;padding:9px 12px;border-radius:var(--radius);background:var(--panel2);align-self:flex-start;white-space:pre-wrap;word-break:break-word}
+.mg.me{align-self:flex-end;background:color-mix(in srgb,var(--accent) 22%,transparent)}
+.mg small{display:block;color:var(--mut);font-size:12px}
 /* toast */
 #toast{position:fixed;right:24px;bottom:24px;padding:12px 18px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--accent);opacity:0;transform:translateY(14px);transition:all .4s var(--ease);pointer-events:none}
 #toast.show{opacity:1;transform:none}
@@ -109,12 +115,14 @@ body.compact nav button span.t{display:none}body.compact #app{grid-template-colu
 
 <form id="login" class="glass hide">
   <h1>Вход</h1>
-  <p>Введите пароль, чтобы открыть настройки.</p>
-  <input id="pw" class="field" type="password" placeholder="Пароль" autocomplete="current-password" autofocus>
+  <p>Введите пароль или ключ.</p>
+  <input id="pw" class="field" type="password" placeholder="Пароль или ключ" autocomplete="current-password" autofocus>
   <div id="err"></div>
   <button class="btn" type="submit">Войти</button>
+  <button class="btn ghost" type="button" id="getk">Получить ключ</button>
 </form>
 
+<div id="req" class="glass hide"><h1>Получить ключ</h1><div id="rq"></div></div>
 <div id="bot" class="glass hide"><h1>Проверка</h1><p>Подтвердите, что вы не бот: нажмите кнопку и удерживайте.</p><button id="hold" type="button" class="btn"><span id="hl">Удерживайте</span></button><div id="berr"></div></div>
 <div id="intro"><div class="blob b1"></div><div class="blob b2"></div><h1 id="wt">Добро пожаловать</h1><div id="ld"><div class="bar"><i id="pb"></i></div><small id="ls">Подготовка…</small></div></div>
 <div id="app" class="glass hide">
@@ -124,7 +132,6 @@ body.compact nav button span.t{display:none}body.compact #app{grid-template-colu
 <div id="toast">Тема обновлена</div>
 
 <script>
-const PASSWORD="denndenn";
 // Вставьте сюда свои Client ID (инструкция в ответе)
 const GOOGLE_CLIENT_ID="",YANDEX_CLIENT_ID="";
 const $=s=>document.querySelector(s);
@@ -139,8 +146,9 @@ const avt=(src,sz,name)=>src?`<div class="av" style="width:${sz}px;height:${sz}p
 /* ---- login ---- */
 $("#login").addEventListener("submit",e=>{
   e.preventDefault();
-  if($("#pw").value===PASSWORD){toBot()}
-  else{const l=$("#login");$("#err").textContent="Неверный пароль. Попробуйте ещё раз.";l.classList.remove("shake");void l.offsetWidth;l.classList.add("shake");$("#pw").select()}
+  const v=$("#pw").value.trim();
+  fetch("/api/login",{method:"POST",body:JSON.stringify({v})}).then(r=>r.ok?r.json():Promise.reject()).then(j=>{if(j.admin)ADM=v;else store.set("vid",j.vid);toBot()}).catch(bad)
+  
 });
 function enter(){
   const l=$("#bot");l.style.transition="opacity .35s,transform .35s";l.style.opacity=0;l.style.transform="scale(.97)";
@@ -164,12 +172,12 @@ let tt;function toast(m="Тема обновлена"){const t=$("#toast");t.tex
 function change(k,v,quiet){S[k]=v;save();apply();if(!quiet)toast()}
 
 /* ---- views ---- */
-const TABS=[["Profile","Профиль"],["Team","Команда",2],["Friends","Друзья"],["Alerts","Уведомления",3],["Security","Безопасность"],["Themes","Темы"],["Connections","Подключения",2],["Subscription","Подписка"],["Shortcuts","Горячие клавиши"],["Dev","Для разработчиков"]];
+const TABS=[["Profile","Профиль"],["Team","Команда",2],["Friends","Друзья"],["Chat","Чат"],["Alerts","Уведомления",3],["Security","Безопасность"],["Themes","Темы"],["Connections","Подключения",2],["Subscription","Подписка"],["Shortcuts","Горячие клавиши"],["Dev","Для разработчиков"]];
 const COLORS=["#3b82f6","#22c55e","#facc15","#fb923c","#ef4444","#a855f7","#6366f1","#06b6d4","#ff6b5e"];
 const FONTS=["SF Pro","Inter","Segoe UI","Georgia","Consolas"];
 
-function render(){apply();
-  $("#nav").innerHTML=TABS.map(([id,n,b])=>`<button data-t="${id}" class="${id===S.tab?"on":""}"><span class="t">${n}</span>${b?`<span class="badge">${b}</span>`:""}</button>`).join("")+`<div class="sp"></div><div id="ping"><i></i><span>Пинг…</span></div><button id="out"><span class="t">Выйти</span></button>`;
+function render(){clearInterval(ct);clearInterval(rt);apply();
+  $("#nav").innerHTML=TABS.filter(t=>t[0]!=="Chat"||ADM||store.get("vid",null)).map(([id,n,b])=>`<button data-t="${id}" class="${id===S.tab?"on":""}"><span class="t">${id==="Chat"&&ADM?"Заявки":n}</span>${b?`<span class="badge">${b}</span>`:""}</button>`).join("")+`<div class="sp"></div><button id="out"><span class="t">Выйти</span></button>`;
   $("#nav").onclick=e=>{const b=e.target.closest("button");if(!b)return;
     if(b.id==="out"){store.set("auth",false);location.reload();return}
     S.tab=b.dataset.t;D={};save();render();};
@@ -192,15 +200,16 @@ function stub(){
     return head("Команда","2 участника в пространстве.")+`<div class="card" style="display:flex;gap:16px;align-items:center">${avt(S.avatar,60,S.name)}<div><b style="font-size:19px">${esc(S.name)}</b><br><small>Разработчик</small><br><small>Дата рождения: 02.10.2007 (${ag} ${w})</small></div><span class="dot ok"></span></div>
     <div class="li" style="margin-top:12px"><div class="av">R</div><div><b>rekogz</b><br><small>Проверяет сайт</small></div><span class="dot" title="Не в сети"></span></div>`}
   if(t==="Friends")return head("Друзья","Добавляйте друзей по ключу и смотрите их статистику.")+`<div style="display:flex;gap:10px"><input class="field" id="fk" placeholder="Вставьте ключ друга" autocomplete="off"><button class="btn sm" id="fa">Добавить</button></div><div id="fr"></div>`;
+  if(t==="Chat")return head(ADM?"Заявки":"Чат с ботом",ADM?"Переписка с теми, кто просит ключ.":"Здесь можно написать боту.")+`<div id="ch"></div>`;
   if(t==="Alerts")return head("Уведомления","Выберите, о чём вам сообщать.")+tgl("n_mail","Письма на почту","Сводка за день.")+tgl("n_push","Всплывающие окна","Сообщения от команды.")+tgl("n_sound","Звук","Короткий сигнал при новом событии.")
   +`<div class="lbl">Недавние</div><div class="li"><b>Макс добавил вас в проект</b><small style="margin-left:auto">5 мин</small></div><div class="li"><b>Тема обновлена</b><small style="margin-left:auto">1 ч</small></div><div class="li"><b>Новый вход в аккаунт</b><small style="margin-left:auto">вчера</small></div>`;
   if(t==="Security")return head("Безопасность","Защита входа и сессий.")+tgl("s_ask","Запрашивать пароль при каждом запуске","Выключит автоматический вход.")+tgl("s_lock","Блокировать после 5 неверных попыток","Защита от подбора пароля.")
   +`<div class="lbl">Активные сессии</div><div class="li"><b>Это устройство</b><span class="dot ok"></span></div><button class="btn sm ghost" id="lo" style="margin-top:14px">Выйти</button>`;
   if(t==="Connections"){const ac=S.acc||{};
     const row=(id,n,c,ch)=>`<div class="li"><div class="av" style="background:${c}">${ch}</div><div><b>${n}</b><br><small>${ac[id]?esc(ac[id].email||ac[id].name):"Не подключено"}</small></div><button class="btn sm ${ac[id]?"ghost":""}" style="margin-left:auto" data-p="${id}">${ac[id]?"Отключить":"Подключить"}</button></div>`;
-    return head("Подключения","Сервисы, связанные с пространством.")+`<div class="card" id="cf"><b>Cloudflare WARP</b> <span class="spin">◌</span> <small>Проверяю…</small></div>`+row("google","Google","#4285f4","G")+row("yandex","Яндекс","#fc3f1d","Я")}
+    return head("Подключения","Сервисы, связанные с пространством.")+row("google","Google","#4285f4","G")+row("yandex","Яндекс","#fc3f1d","Я")}
   if(t==="Subscription")return head("Подписка","Тарифы и лимиты.")+`<div class="card" style="text-align:center;padding:40px 20px"><span class="chip" style="background:var(--accent)">В разработке</span><b style="display:block;font-size:22px;margin-top:14px">Скоро будет</b><small>Раздел подписки ещё делается.</small></div>`;
-  if(t==="Shortcuts")return head("Горячие клавиши","Быстрые действия с клавиатуры.")+[["Открыть «Темы»","T"],["Тёмная / светлая тема","D"],["Выйти","Q"],["Открыть «Друзья»","F"],["Обновить проверку Cloudflare","R"]].map(([a,k])=>`<div class="li"><b>${a}</b><kbd>${k}</kbd></div>`).join("")+`<p class="sub" style="margin-top:14px">Работают, когда курсор не в поле ввода.</p>`;
+  if(t==="Shortcuts")return head("Горячие клавиши","Быстрые действия с клавиатуры.")+[["Открыть «Темы»","T"],["Тёмная / светлая тема","D"],["Выйти","Q"],["Открыть «Друзья»","F"]].map(([a,k])=>`<div class="li"><b>${a}</b><kbd>${k}</kbd></div>`).join("")+`<p class="sub" style="margin-top:14px">Работают, когда курсор не в поле ввода.</p>`;
   if(t==="Dev")return head("Для разработчиков","Текущие настройки и сброс.")+`<pre>${esc(JSON.stringify({...S,avatar:S.avatar?"[изображение]":null},null,2))}</pre><button class="btn sm ghost" id="rs" style="margin-top:14px">Сбросить настройки</button>`;
   return "";
 }
@@ -220,7 +229,7 @@ function bindTab(){
   if(g("lo"))g("lo").onclick=()=>$("#out").click();
   if(g("rs"))g("rs").onclick=()=>{localStorage.removeItem("settings");location.reload()};
   document.querySelectorAll("[data-soon]").forEach(b=>b.onclick=()=>toast("Скоро будет доступно"));
-  if(S.tab==="Connections")cf();
+  if(S.tab==="Chat"){ADM?admTab():reqView($("#ch"))}
   if(S.tab==="Friends"){drawF();sync();
     g("fa").onclick=async()=>{const v=g("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Нет связи с сервером");g("fk").value=""};
     g("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.cp!==undefined){navigator.clipboard.writeText(myKey());toast("Ключ скопирован")}else if(b.dataset.a){const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)}};
@@ -317,7 +326,7 @@ let nt;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function boot(){
   $("#wt").innerHTML=[..."Добро пожаловать"].map((c,i)=>`<span style="animation-delay:${i*60}ms">${c===" "?"&nbsp;":c}</span>`).join("");
   await sleep(2100);$("#ld").classList.add("on");
-  const st=[["Проверяем соединение",async()=>{try{await fetch("https://www.cloudflare.com/cdn-cgi/trace",{mode:"no-cors",cache:"no-store"})}catch{}}],["Загружаем данные",()=>sleep(600)],["Готовим интерфейс",()=>sleep(600)]];
+  const st=[["Проверяем соединение",async()=>{await sleep(500)}],["Загружаем данные",()=>sleep(600)],["Готовим интерфейс",()=>sleep(600)]];
   for(let i=0;i<st.length;i++){$("#ls").textContent=st[i][0]+"…";await st[i][1]();$("#pb").style.width=((i+1)/st.length*100)+"%";await sleep(400)}
   await sleep(300);$("#intro").classList.add("out");$("#login").classList.remove("hide");$("#pw").focus();
 }
@@ -362,6 +371,52 @@ function drawF(){
   +(F.in.length?'<div class="lbl">Заявки вам</div>'+F.in.map(u=>`<div class="li"><b>${esc(u.name)}</b><span style="margin-left:auto;display:flex;gap:8px"><button class="btn sm" data-a="acc" data-k="${u.id}">Принять</button><button class="btn sm ghost" data-a="del" data-k="${u.id}">Отклонить</button></span></div>`).join(""):"")
   +(F.out.length?'<div class="lbl">Отправлено</div>'+F.out.map(u=>`<div class="li"><b>${esc(u.name)}</b><small style="margin-left:auto">ждёт ответа</small><button class="btn sm ghost" data-a="del" data-k="${u.id}">Отозвать</button></div>`).join(""):"")
   +`<div class="lbl">Друзья (${F.f.length})</div>`+(F.f.length?F.f.map(u=>`<details class="card" data-id="${u.id}"${open.includes(u.id)?" open":""}><summary style="cursor:pointer;display:flex;align-items:center;gap:10px"><b>${esc(u.name)}</b><small>${ago(u.last)}</small><span class="dot ${online(u.last)?"ok":""}"></span></summary>${stat(u)}<button class="btn sm ghost" style="margin-top:14px" data-a="del" data-k="${u.id}">Удалить из друзей</button></details>`).join(""):'<small style="color:var(--mut)">Пока никого. Вставьте ключ друга выше.</small>');
+}
+
+/* ---- заявки на ключ и чат ---- */
+let ADM=null,rt,ct;
+const rapi=async b=>{const r=await fetch("/api/req",{method:"POST",body:JSON.stringify(b)});if(!r.ok)throw 0;return r.json()};
+const msgsHTML=(m,me,nb,nv)=>m.map(x=>`<div class="mg${x.f===me?" me":""}"><small>${x.f==="b"?nb:nv} ${new Date(x.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(x.t)}</div>`).join("");
+function bad(){const l=$("#login");$("#err").textContent="Неверный пароль или ключ.";l.classList.remove("shake");void l.offsetWidth;l.classList.add("shake");$("#pw").select()}
+$("#getk").onclick=()=>{$("#login").classList.add("hide");$("#req").classList.remove("hide");reqView($("#rq"),1)};
+function reqView(el,back){
+  clearInterval(rt);const q=s=>el.querySelector(s),vid=store.get("vid",null);
+  const bk=back?'<button class="btn ghost" id="rbk">Назад</button>':"";
+  if(!vid){
+    el.innerHTML='<p class="sub">Введите имя, чтобы вам выдали ключ.</p><input class="field" id="rn" placeholder="Ваше имя" maxlength="40"><button class="btn" id="rgo">Получить ключ</button>'+bk;
+    q("#rgo").onclick=async()=>{try{const r=await rapi({name:q("#rn").value.trim()||"Гость"});store.set("vid",r.vid);reqView(el,back)}catch{toast("Сервер недоступен")}};
+  }else{
+    el.innerHTML='<span id="rst" class="chip" style="background:var(--accent)">Ожидайте выдачи ключа</span><p class="sub" style="margin:8px 0">Обычно от 10 минут до часа. Страницу можно не закрывать.</p><div class="chat" id="rch"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="field" id="rtx" placeholder="Сообщение"><button class="btn sm" id="rsd">Отправить</button></div>'+bk;
+    const pull=async t=>{try{const r=await rapi({vid,text:t}),c=q("#rch"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;c.innerHTML=msgsHTML(r.msgs,"v","Бот","Вы");if(low||t)c.scrollTop=c.scrollHeight;q("#rst").textContent=r.status==="ok"?"Ключ выдан":r.status==="no"?"Заявка отклонена":"Ожидайте выдачи ключа"}catch{}};
+    pull();rt=setInterval(pull,5000);
+    q("#rsd").onclick=()=>{const i=q("#rtx"),t=i.value.trim();if(t){i.value="";pull(t)}};
+    q("#rtx").onkeydown=e=>{if(e.key==="Enter")q("#rsd").click()};
+  }
+  if(back)q("#rbk").onclick=()=>{clearInterval(rt);$("#req").classList.add("hide");$("#login").classList.remove("hide")};
+}
+async function admTab(){
+  const el=$("#ch");let cur=null;const q=s=>el.querySelector(s);
+  const adm=async b=>{const r=await fetch("/api/adm",{method:"POST",body:JSON.stringify({pw:ADM,...b})});if(!r.ok)throw 0;return r.json()};
+  const stT=s=>s==="ok"?"Ключ выдан":s==="no"?"Отклонена":"Ждёт";
+  const list=async()=>{try{const{list:l}=await adm({act:"list"});
+    el.innerHTML=l.length?l.map(x=>`<div class="li" data-v="${x.vid}" style="cursor:pointer"><div class="av">${esc((x.name||"?")[0]).toUpperCase()}</div><div><b>${esc(x.name)}</b>${x.unread?` <span class="chip" style="background:var(--accent)">${x.unread}</span>`:""}<br><small>${esc(x.pre.slice(0,60))}</small></div><span class="chip ${x.status==="ok"?"ok":x.status==="no"?"off":""}" style="margin-left:auto">${stT(x.status)}</span></div>`).join(""):'<small style="color:var(--mut)">Заявок пока нет.</small>';
+    el.querySelectorAll(".li").forEach(d=>d.onclick=()=>{cur=d.dataset.v;view()})}catch{el.innerHTML="<small>Сервер недоступен или не задан ADMIN_PASS.</small>"}};
+  const view=async(act,text)=>{try{
+    const r=await adm({act:act||"get",vid:cur,text});
+    if(!q("#ac")){
+      el.innerHTML='<button class="btn sm ghost" id="ab">← К заявкам</button> <b id="an"></b><div class="chat" id="ac"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="field" id="at" placeholder="Сообщение от имени бота"><button class="btn sm" id="as">Отправить</button></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" id="aok">Одобрить и выдать ключ</button><button class="btn sm ghost" id="ano">Отклонить</button></div>';
+      const t=()=>{const i=q("#at"),v=i.value.trim();i.value="";return v};
+      q("#ab").onclick=()=>{cur=null;list()};
+      q("#as").onclick=()=>{const v=t();if(v)view("send",v)};
+      q("#at").onkeydown=e=>{if(e.key==="Enter")q("#as").click()};
+      q("#aok").onclick=()=>view("ok",t());
+      q("#ano").onclick=()=>view("no",t());
+    }
+    q("#an").textContent=r.name+" · "+stT(r.status);
+    const c=q("#ac"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
+    c.innerHTML=msgsHTML(r.msgs,"b","Вы (бот)",esc(r.name));if(low||act)c.scrollTop=c.scrollHeight;
+  }catch{}};
+  list();ct=setInterval(()=>cur?view():list(),6000);
 }
 apply();boot();
 </script>

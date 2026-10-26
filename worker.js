@@ -16,6 +16,37 @@ export default{async fetch(req,env){
     await put(id,{h:await sha(sec),name:"Гость",secs:0,visits:0,last:Date.now(),tabs:{},f:[],in:[],out:[]});
     return J({id,sec});
   }
+  // ---- заявки на ключ ----
+  const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
+  const th=r=>({status:r.status,msgs:r.msgs,name:r.name});
+  const add=(r,f,t)=>{if(t)r.msgs.push({f,t:String(t).slice(0,1000),ts:Date.now()});r.last=Date.now()};
+  const norm=x=>String(x||"").toLowerCase().replace(/[^0-9a-f]/g,"");
+  if(u.pathname==="/api/req"){
+    let v=norm(b.vid),r=v&&await rg(v);
+    if(!r){v=rnd(12);r={name:String(b.name||"Гость").slice(0,40),status:"wait",msgs:[],last:Date.now(),unread:0};
+      add(r,"b","Заявка принята. Ожидайте выдачи ключа, обычно это занимает от 10 минут до часа.")}
+    if(b.text){add(r,"v",b.text);r.unread=(r.unread||0)+1}
+    await rp(v,r);return J({vid:v,...th(r)});
+  }
+  if(u.pathname==="/api/login"){
+    const x=String(b.v||"");
+    if(env.ADMIN_PASS&&x===env.ADMIN_PASS)return J({admin:1});
+    const v=await env.KV.get("k:"+norm(x));
+    return v?J({vid:v}):J({err:"bad"},401);
+  }
+  if(u.pathname==="/api/adm"){
+    if(!env.ADMIN_PASS||String(b.pw||"")!==env.ADMIN_PASS)return J({err:"auth"},401);
+    if(b.act==="list"){
+      const l=await env.KV.list({prefix:"r:"});
+      const a=(await Promise.all(l.keys.map(async k=>{const r=JSON.parse(await env.KV.get(k.name));return{vid:k.name.slice(2),name:r.name,status:r.status,last:r.last,unread:r.unread||0,pre:(r.msgs[r.msgs.length-1]||{}).t||""}}))).sort((x,y)=>y.last-x.last);
+      return J({list:a});
+    }
+    const v=norm(b.vid),r=await rg(v);if(!r)return J({err:"none"},404);
+    if(b.act==="send")add(r,"b",b.text);
+    if(b.act==="ok"){const key=rnd(16);await env.KV.put("k:"+key,v);r.status="ok";add(r,"b",(b.text?b.text+"\n":"")+"Ваш ключ: "+key.match(/.{8}/g).join("-"))}
+    if(b.act==="no"){r.status="no";add(r,"b",b.text||"Заявка отклонена.")}
+    r.unread=0;await rp(v,r);return J({vid:v,...th(r)});
+  }
   if(u.pathname!=="/api/sync")return J({err:"404"},404);
 
   const id=String(b.id||""),me=await get(id);
