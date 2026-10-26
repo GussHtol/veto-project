@@ -396,7 +396,7 @@ let ADM=null,rt,ct;
 const rapi=async b=>{const r=await fetch("/api/req",{method:"POST",body:JSON.stringify(b)});if(!r.ok)throw 0;return r.json()};
 const msgsHTML=(m,me,nb,nv)=>m.map(x=>`<div class="mg${x.f===me?" me":""}"><small>${x.f==="b"?nb:nv} ${new Date(x.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(x.t)}</div>`).join("");
 function bad(){const l=$("#login");$("#err").textContent="Неверный пароль или ключ.";l.classList.remove("shake");void l.offsetWidth;l.classList.add("shake");$("#pw").select()}
-$("#getk").onclick=()=>{$("#login").classList.add("hide");$("#req").classList.remove("hide");reqView($("#rq"),1)};
+$("#getk").onclick=()=>{location.href="dash.html"};
 function reqView(el,back){
   clearInterval(rt);const q=s=>el.querySelector(s),vid=store.get("vid",null);
   const bk=back?'<button class="btn ghost" id="rbk">Назад</button>':"";

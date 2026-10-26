@@ -16,14 +16,40 @@ export default{async fetch(req,env){
     await put(id,{h:await sha(sec),name:"Гость",secs:0,visits:0,last:Date.now(),tabs:{},f:[],in:[],out:[]});
     return J({id,sec});
   }
+  // ---- аккаунты ----
+  const ag=async l=>JSON.parse(await env.KV.get("a:"+l)||"null");
+  const tok=async l=>{const t=rnd(24);await env.KV.put("t:"+t,l,{expirationTtl:7776000});return t};
+  const low=x=>String(x||"").toLowerCase().trim();
+  const who=async()=>{const l=await env.KV.get("t:"+String(b.token||""));return l?{l,a:await ag(l)}:null};
+  if(u.pathname==="/api/reg"){
+    const l=low(b.login),p=String(b.pass||"");
+    if(!/^[a-z0-9_.-]{3,24}$/.test(l))return J({err:"Логин: 3-24 символа, латиница, цифры, . _ -"},400);
+    if(p.length<6)return J({err:"Пароль: минимум 6 символов"},400);
+    if(await ag(l))return J({err:"Такой логин уже занят"},400);
+    const salt=rnd(8);
+    await env.KV.put("a:"+l,JSON.stringify({salt,h:await sha(salt+p),vid:rnd(12),data:{}}));
+    return J({token:await tok(l),login:l,data:{}});
+  }
+  if(u.pathname==="/api/log"){
+    const l=low(b.login),a=await ag(l);
+    if(!a||a.h!==await sha(a.salt+String(b.pass||"")))return J({err:"Неверный логин или пароль"},401);
+    return J({token:await tok(l),login:l,data:a.data});
+  }
+  if(u.pathname==="/api/me"){const m=await who();return m?J({login:m.l,data:m.a.data}):J({err:"auth"},401)}
+  if(u.pathname==="/api/save"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    const d=JSON.stringify(b.data||{});if(d.length>30000)return J({err:"big"},400);
+    m.a.data=JSON.parse(d);await env.KV.put("a:"+m.l,JSON.stringify(m.a));return J({ok:1});
+  }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
   const th=r=>({status:r.status,msgs:r.msgs,name:r.name});
   const add=(r,f,t)=>{if(t)r.msgs.push({f,t:String(t).slice(0,1000),ts:Date.now()});r.last=Date.now()};
   const norm=x=>String(x||"").toLowerCase().replace(/[^0-9a-f]/g,"");
   if(u.pathname==="/api/req"){
-    let v=norm(b.vid),r=v&&await rg(v);
-    if(!r){if(v)return J({gone:1});v=rnd(12);r={name:String(b.name||"Гость").slice(0,40),status:"wait",msgs:[],last:Date.now(),unread:0};
+    let v=norm(b.vid),r=v&&await rg(v),nm=b.name;
+    if(b.token){const w=await who();if(!w)return J({err:"auth"},401);v=w.a.vid;nm=w.l;r=await rg(v)}
+    if(!r){if(b.token&&!b.start)return J({none:1});if(v&&!b.token)return J({gone:1});if(!b.token)v=rnd(12);r={name:String(nm||"Гость").slice(0,40),status:"wait",msgs:[],last:Date.now(),unread:0};
       add(r,"b","Заявка принята. Ожидайте выдачи ключа, обычно это занимает от 10 минут до часа.")}
     if(b.text){add(r,"v",b.text);r.unread=(r.unread||0)+1}
     await rp(v,r);return J({vid:v,...th(r)});
