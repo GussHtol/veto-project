@@ -95,6 +95,9 @@ pre{font:14px/1.5 ui-monospace,Consolas,monospace;padding:12px;border-radius:var
 #berr{color:#ff7a7a;font-size:15px;margin-top:10px;min-height:18px}
 body.noanim #wt span{opacity:1!important;filter:none!important;transform:none!important}
 #req{width:min(460px,100%)!important}
+#mus{position:fixed;left:20px;bottom:20px;z-index:60;width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--panel);backdrop-filter:blur(12px);cursor:pointer;font-size:20px;transition:transform .25s var(--ease),box-shadow .3s}
+#mus:hover{transform:scale(1.1);box-shadow:0 0 18px color-mix(in srgb,var(--accent) 50%,transparent)}
+#mh{position:absolute;bottom:34px;left:0;right:0;text-align:center;color:var(--mut);font-size:15px;opacity:0;transition:opacity .5s;pointer-events:none}#mh.on{opacity:1}
 .btn.ghost{background:var(--panel2);box-shadow:none;color:var(--text);border:1px solid var(--line)}
 .chat{max-height:300px;overflow:auto;display:flex;flex-direction:column;gap:8px;padding:4px 2px;margin-top:8px}
 .mg{max-width:85%;padding:9px 12px;border-radius:var(--radius);background:var(--panel2);align-self:flex-start;white-space:pre-wrap;word-break:break-word}
@@ -124,7 +127,8 @@ body.compact nav button span.t{display:none}body.compact #app{grid-template-colu
 
 <div id="req" class="glass hide"><h1>Получить ключ</h1><div id="rq"></div></div>
 <div id="bot" class="glass hide"><h1>Проверка</h1><p>Подтвердите, что вы не бот: нажмите кнопку и удерживайте.</p><button id="hold" type="button" class="btn"><span id="hl">Удерживайте</span></button><div id="berr"></div></div>
-<div id="intro"><div class="blob b1"></div><div class="blob b2"></div><h1 id="wt">Добро пожаловать</h1><div id="ld"><div class="bar"><i id="pb"></i></div><small id="ls">Подготовка…</small></div></div>
+<div id="intro"><div class="blob b1"></div><div class="blob b2"></div><h1 id="wt">Добро пожаловать</h1><div id="ld"><div class="bar"><i id="pb"></i></div><small id="ls">Подготовка…</small></div><div id="mh">Нажмите в любое место, чтобы включить музыку</div></div>
+<audio id="bgm" src="music.mp3" loop preload="auto"></audio><button id="mus" type="button" aria-label="Музыка">🔊</button>
 <div id="app" class="glass hide">
   <nav id="nav"></nav>
   <main id="main"></main>
@@ -323,7 +327,7 @@ matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>S.mode==
 
 /* ---- вступление и проверка ---- */
 let nt;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-async function boot(){
+async function boot(){music();
   $("#wt").innerHTML=[..."Добро пожаловать"].map((c,i)=>`<span style="animation-delay:${i*60}ms">${c===" "?"&nbsp;":c}</span>`).join("");
   await sleep(2100);$("#ld").classList.add("on");
   const st=[["Проверяем соединение",async()=>{await sleep(500)}],["Загружаем данные",()=>sleep(600)],["Готовим интерфейс",()=>sleep(600)]];
@@ -387,7 +391,7 @@ function reqView(el,back){
     q("#rgo").onclick=async()=>{try{const r=await rapi({name:q("#rn").value.trim()||"Гость"});store.set("vid",r.vid);reqView(el,back)}catch{toast("Сервер недоступен")}};
   }else{
     el.innerHTML='<span id="rst" class="chip" style="background:var(--accent)">Ожидайте выдачи ключа</span><p class="sub" style="margin:8px 0">Обычно от 10 минут до часа. Страницу можно не закрывать.</p><div class="chat" id="rch"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="field" id="rtx" placeholder="Сообщение"><button class="btn sm" id="rsd">Отправить</button></div>'+bk;
-    const pull=async t=>{try{const r=await rapi({vid,text:t}),c=q("#rch"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;c.innerHTML=msgsHTML(r.msgs,"v","Бот","Вы");if(low||t)c.scrollTop=c.scrollHeight;q("#rst").textContent=r.status==="ok"?"Ключ выдан":r.status==="no"?"Заявка отклонена":"Ожидайте выдачи ключа"}catch{}};
+    const pull=async t=>{try{const r=await rapi({vid,text:t});if(r.gone){store.set("vid",null);clearInterval(rt);toast("Заявка удалена");return reqView(el,back)}const c=q("#rch"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;c.innerHTML=msgsHTML(r.msgs,"v","Бот","Вы");if(low||t)c.scrollTop=c.scrollHeight;q("#rst").textContent=r.status==="ok"?"Ключ выдан":r.status==="no"?"Заявка отклонена":"Ожидайте выдачи ключа"}catch{}};
     pull();rt=setInterval(pull,5000);
     q("#rsd").onclick=()=>{const i=q("#rtx"),t=i.value.trim();if(t){i.value="";pull(t)}};
     q("#rtx").onkeydown=e=>{if(e.key==="Enter")q("#rsd").click()};
@@ -403,14 +407,16 @@ async function admTab(){
     el.querySelectorAll(".li").forEach(d=>d.onclick=()=>{cur=d.dataset.v;view()})}catch{el.innerHTML="<small>Сервер недоступен или не задан ADMIN_PASS.</small>"}};
   const view=async(act,text)=>{try{
     const r=await adm({act:act||"get",vid:cur,text});
+    if(r.gone){cur=null;toast("Удалено");return list()}
     if(!q("#ac")){
-      el.innerHTML='<button class="btn sm ghost" id="ab">← К заявкам</button> <b id="an"></b><div class="chat" id="ac"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="field" id="at" placeholder="Сообщение от имени бота"><button class="btn sm" id="as">Отправить</button></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" id="aok">Одобрить и выдать ключ</button><button class="btn sm ghost" id="ano">Отклонить</button></div>';
+      el.innerHTML='<button class="btn sm ghost" id="ab">← К заявкам</button> <b id="an"></b><div class="chat" id="ac"></div><div style="display:flex;gap:8px;margin-top:10px"><input class="field" id="at" placeholder="Сообщение от имени бота"><button class="btn sm" id="as">Отправить</button></div><div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap"><button class="btn sm" id="aok">Одобрить и выдать ключ</button><button class="btn sm ghost" id="ano">Отклонить</button><button class="btn sm ghost" id="adl" style="margin-left:auto;color:#ff7a7a">Удалить переписку</button></div>';
       const t=()=>{const i=q("#at"),v=i.value.trim();i.value="";return v};
       q("#ab").onclick=()=>{cur=null;list()};
       q("#as").onclick=()=>{const v=t();if(v)view("send",v)};
       q("#at").onkeydown=e=>{if(e.key==="Enter")q("#as").click()};
       q("#aok").onclick=()=>view("ok",t());
       q("#ano").onclick=()=>view("no",t());
+      q("#adl").onclick=()=>{if(confirm("Удалить заявку и переписку? У человека она тоже исчезнет."))view("del")};
     }
     q("#an").textContent=r.name+" · "+stT(r.status);
     const c=q("#ac"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
@@ -418,6 +424,19 @@ async function admTab(){
   }catch{}};
   list();ct=setInterval(()=>cur?view():list(),6000);
 }
+
+/* ---- музыка ---- */
+const bgm=$("#bgm");let muted=store.get("muted",false);bgm.volume=0;
+const mic=()=>{$("#mus").textContent=muted?"🔇":"🔊"};mic();
+function fade(to,ms=1800,end){const f=bgm.volume,t0=performance.now();const st=()=>{const p=Math.min(1,(performance.now()-t0)/ms);bgm.volume=Math.max(0,Math.min(1,f+(to-f)*p));if(p<1)requestAnimationFrame(st);else end&&end()};st()}
+async function play(){if(muted)return true;try{await bgm.play();fade(.45);$("#mh").classList.remove("on");return true}catch{return false}}
+async function music(){
+  if(await play())return;
+  $("#mh").classList.add("on");
+  const go=()=>{if(bgm.paused)play();["pointerdown","keydown","touchstart"].forEach(e=>removeEventListener(e,go))};
+  ["pointerdown","keydown","touchstart"].forEach(e=>addEventListener(e,go));
+}
+$("#mus").onclick=()=>{muted=!muted;store.set("muted",muted);mic();if(muted)fade(0,500,()=>bgm.pause());else play()};
 apply();boot();
 </script>
 </body>

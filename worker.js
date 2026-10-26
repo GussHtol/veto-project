@@ -23,7 +23,7 @@ export default{async fetch(req,env){
   const norm=x=>String(x||"").toLowerCase().replace(/[^0-9a-f]/g,"");
   if(u.pathname==="/api/req"){
     let v=norm(b.vid),r=v&&await rg(v);
-    if(!r){v=rnd(12);r={name:String(b.name||"Гость").slice(0,40),status:"wait",msgs:[],last:Date.now(),unread:0};
+    if(!r){if(v)return J({gone:1});v=rnd(12);r={name:String(b.name||"Гость").slice(0,40),status:"wait",msgs:[],last:Date.now(),unread:0};
       add(r,"b","Заявка принята. Ожидайте выдачи ключа, обычно это занимает от 10 минут до часа.")}
     if(b.text){add(r,"v",b.text);r.unread=(r.unread||0)+1}
     await rp(v,r);return J({vid:v,...th(r)});
@@ -42,6 +42,7 @@ export default{async fetch(req,env){
       return J({list:a});
     }
     const v=norm(b.vid),r=await rg(v);if(!r)return J({err:"none"},404);
+    if(b.act==="del"){await env.KV.delete("r:"+v);return J({gone:1})}
     if(b.act==="send")add(r,"b",b.text);
     if(b.act==="ok"){const key=rnd(16);await env.KV.put("k:"+key,v);r.status="ok";add(r,"b",(b.text?b.text+"\n":"")+"Ваш ключ: "+key.match(/.{8}/g).join("-"))}
     if(b.act==="no"){r.status="no";add(r,"b",b.text||"Заявка отклонена.")}
