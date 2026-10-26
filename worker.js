@@ -7,6 +7,12 @@ const cut=(a,x)=>a.filter(v=>v!==x);
 export default{async fetch(req,env){
   const u=new URL(req.url);
   if(!u.pathname.startsWith("/api/"))return env.ASSETS.fetch(req);
+  if(u.pathname==="/api/banner"&&req.method==="GET"){
+    const s=await env.KV.get("bn:"+String(u.searchParams.get("u")||"").toLowerCase().trim());
+    const m=s&&/^data:(image\/(?:gif|png|jpeg|webp));base64,(.+)$/.exec(s);
+    if(!m)return new Response("",{status:404});
+    return new Response(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)),{headers:{"content-type":m[1],"cache-control":"public,max-age=3600"}});
+  }
   if(req.method!=="POST")return J({err:"method"},405);
   const get=async id=>JSON.parse(await env.KV.get("u:"+id)||"null"),put=(id,o)=>env.KV.put("u:"+id,JSON.stringify(o));
   const b=await req.json().catch(()=>({}));
@@ -40,6 +46,13 @@ export default{async fetch(req,env){
     const m=await who();if(!m)return J({err:"auth"},401);
     const d=JSON.stringify(b.data||{});if(d.length>30000)return J({err:"big"},400);
     m.a.data=JSON.parse(d);await env.KV.put("a:"+m.l,JSON.stringify(m.a));return J({ok:1});
+  }
+  if(u.pathname==="/api/bnup"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    const d=String(b.data||"");
+    if(!d){await env.KV.delete("bn:"+m.l);return J({ok:1})}
+    if(!/^data:image\/(gif|png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(d)||d.length>2900000)return J({err:"Файл слишком большой (до 2 МБ) или неверный формат"},400);
+    await env.KV.put("bn:"+m.l,d);return J({ok:1});
   }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
@@ -82,7 +95,7 @@ export default{async fetch(req,env){
   // статистика самого пользователя
   const dt=Math.max(0,Math.min(120,+b.dt||0));
   me.name=String(b.name||me.name).slice(0,40);
-  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
+  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
   me.secs+=dt;me.last=Date.now();
   if(b.nv)me.visits++;
   if(b.tab&&dt){const t=String(b.tab).slice(0,20);me.tabs[t]=(me.tabs[t]||0)+dt}
