@@ -227,18 +227,20 @@ function bindTab(){
   }
 }
 async function trace(){
-  for(const u of ["https://www.cloudflare.com/cdn-cgi/trace","https://1.1.1.1/cdn-cgi/trace","https://one.one.one.one/cdn-cgi/trace"]){
-    try{const t0=performance.now();const r=await fetch(u,{cache:"no-store"});const tx=await r.text();
-      return{ms:Math.round(performance.now()-t0),o:Object.fromEntries(tx.trim().split("\n").map(l=>l.split("=")))}}catch{}
-  }return null}
+  let best=null;
+  for(const u of ["https://www.cloudflare.com/cdn-cgi/trace","https://one.one.one.one/cdn-cgi/trace","https://1.1.1.1/cdn-cgi/trace"]){
+    try{const t0=performance.now();const r=await fetch(u+"?t="+Date.now(),{cache:"no-store"});const tx=await r.text();
+      const x={ms:Math.round(performance.now()-t0),o:Object.fromEntries(tx.trim().split("\n").map(l=>l.split("=")))};
+      if(!best)best=x;if(x.o.warp&&x.o.warp!=="off")return x}catch{}
+  }return best}
 async function cf(){
   const box=document.getElementById("cf");if(!box)return;
   const retry=()=>{const b=document.getElementById("cfr");if(b)b.onclick=()=>{box.innerHTML='<b>Cloudflare WARP</b> <span class="spin">◌</span> <small>Проверяю…</small>';cf()}};
-  const r=await trace();if(!document.getElementById("cf"))return;
+  await sleep(500);const r=await trace();if(!document.getElementById("cf"))return;
   if(r){const o=r.o,w=o.warp||"off",on=w!=="off";
     box.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>Cloudflare WARP</b><span class="chip ${on?"ok":"off"}">${w==="plus"?"WARP+ включён":on?"Включён":"Выключен"}</span><button class="btn sm ghost" id="cfr" style="margin-left:auto">Обновить</button></div>
-    <div class="kv"><div><small>IP-адрес</small><b>${esc(o.ip||"—")}</b></div><div><small>Страна</small><b>${esc(o.loc||"—")}</b></div><div><small>Дата-центр</small><b>${esc(o.colo||"—")}</b></div><div><small>Пинг</small><b>${r.ms} мс</b></div></div>
-    ${on?"":`<p class="sub" style="margin:14px 0 0">WARP не подключён. Откройте приложение Cloudflare WARP, включите его и нажмите «Обновить».</p>`}`;
+    <div class="kv"><div><small>IP-адрес</small><b>${esc(o.ip||"—")}</b></div><div><small>Страна</small><b>${esc(o.loc||"—")}</b></div><div><small>Дата-центр</small><b>${esc(o.colo||"—")}</b></div><div><small>Пинг</small><b>${r.ms} мс</b></div></div><small style="display:block;margin-top:10px;color:var(--mut)">Проверено в ${new Date().toLocaleTimeString("ru")}</small>
+    ${on?"":`<p class="sub" style="margin:14px 0 0">Сайт видит обычное подключение без WARP. Если WARP уже включён, закройте эту вкладку и откройте сайт заново, а также проверьте, что браузер не обходит WARP (прокси или VPN-расширения).</p>`}`;
   }else{
     let ms=null;try{const t0=performance.now();await fetch("https://www.cloudflare.com/cdn-cgi/trace",{mode:"no-cors",cache:"no-store"});ms=Math.round(performance.now()-t0)}catch{}
     box.innerHTML=`<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap"><b>Cloudflare WARP</b><span class="chip off">Статус недоступен</span><button class="btn sm ghost" id="cfr" style="margin-left:auto">Обновить</button></div>
@@ -304,7 +306,7 @@ function bind(){
 let pingTimer;
 function startPing(){clearInterval(pingTimer);clearInterval(nt);sync();nt=setInterval(sync,15000);const run=async()=>{
   const el=$("#ping");if(!el)return;const t=performance.now();
-  try{await fetch("https://cloudflare.com/cdn-cgi/trace",{mode:"no-cors",cache:"no-store"});
+  try{await fetch("https://www.cloudflare.com/cdn-cgi/trace?t="+Date.now(),{mode:"no-cors",cache:"no-store"});
     const ms=Math.round(performance.now()-t);el.querySelector("span").textContent=ms+" мс";el.querySelector("i").style.background=ms<80?"#22c55e":ms<200?"#facc15":"#ef4444"}
   catch{el.querySelector("span").textContent="нет сети";el.querySelector("i").style.background="#888"}};
   run();pingTimer=setInterval(run,5000)}
