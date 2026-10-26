@@ -15,9 +15,9 @@ button,select,input{font:inherit;color:inherit}
 .hide{display:none!important}
 .glass{background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);box-shadow:0 30px 80px rgba(0,0,0,.35)}
 /* login */
-#login{width:min(380px,100%);padding:34px;border-radius:calc(var(--radius) + 8px);animation:rise .6s var(--ease)}
-#login h1{font-size:30px;margin-bottom:6px}
-#login p{color:var(--mut);margin-bottom:22px;font-size:17px}
+#login,#bot{width:min(380px,100%);padding:34px;border-radius:calc(var(--radius) + 8px);animation:rise .6s var(--ease)}
+#login h1,#bot h1{font-size:30px;margin-bottom:6px}
+#login p,#bot p{color:var(--mut);margin-bottom:22px;font-size:17px}
 .field{width:100%;padding:13px 14px;border-radius:var(--radius);background:var(--panel2);border:1px solid var(--line);outline:0;transition:border-color .25s,box-shadow .25s}
 .field:focus{border-color:var(--accent);box-shadow:0 0 0 3px color-mix(in srgb,var(--accent) 28%,transparent)}
 .btn{margin-top:14px;width:100%;padding:13px;border:0;border-radius:var(--radius);background:var(--accent);color:#fff;font-weight:600;cursor:pointer;transition:transform .2s var(--ease),filter .2s,box-shadow .3s;box-shadow:0 8px 28px color-mix(in srgb,var(--accent) 45%,transparent)}
@@ -79,6 +79,21 @@ pre{font:14px/1.5 ui-monospace,Consolas,monospace;padding:12px;border-radius:var
 .spin{animation:sp 1s linear infinite;display:inline-block}@keyframes sp{to{transform:rotate(360deg)}}
 .pv{display:flex;gap:18px;align-items:center;padding:var(--pad);border:1px solid var(--line);border-radius:var(--radius);background:var(--panel2)}
 .av{overflow:hidden;transition:transform .3s var(--ease)}.pv .av:hover{transform:scale(1.06)}
+#intro{position:fixed;inset:0;z-index:50;display:grid;place-content:center;justify-items:center;gap:34px;background:var(--bg);overflow:hidden;transition:opacity .8s,visibility .8s}
+#intro.out{opacity:0;visibility:hidden}
+#wt{position:relative;font-size:clamp(34px,8vw,86px);font-weight:700;letter-spacing:-.02em;text-align:center;color:#fff;animation:glow 2.6s ease-in-out infinite alternate}
+#wt span{display:inline-block;opacity:0;filter:blur(14px);transform:translateY(26px) scale(.9);animation:ch .9s var(--ease) forwards}
+@keyframes ch{to{opacity:1;filter:none;transform:none}}
+@keyframes glow{from{text-shadow:0 0 18px var(--accent),0 0 48px var(--accent)}to{text-shadow:0 0 28px var(--accent),0 0 70px var(--accent),0 0 140px var(--accent)}}
+.blob{position:absolute;width:55vmax;height:55vmax;border-radius:50%;filter:blur(100px);opacity:.33;background:var(--accent);animation:fl 9s ease-in-out infinite alternate}
+.b1{left:-18%;top:-25%}.b2{right:-18%;bottom:-30%;background:#4f6bff;animation-delay:-4s}
+@keyframes fl{to{transform:translate(8vw,6vh) scale(1.2)}}
+#ld{position:relative;width:min(340px,80vw);text-align:center;opacity:0;transition:opacity .6s}#ld.on{opacity:1}
+.bar{height:6px;border-radius:9px;background:var(--panel2);overflow:hidden}.bar i{display:block;height:100%;width:0;background:var(--accent);box-shadow:0 0 12px var(--accent);transition:width .5s var(--ease)}
+#ld small{display:block;margin-top:12px;color:var(--mut)}
+#hold{position:relative;overflow:hidden;user-select:none;touch-action:none}#hold::before{content:"";position:absolute;inset:0;width:var(--h,0%);background:rgba(255,255,255,.3)}#hold span{position:relative}
+#berr{color:#ff7a7a;font-size:15px;margin-top:10px;min-height:18px}
+body.noanim #wt span{opacity:1!important;filter:none!important;transform:none!important}
 /* toast */
 #toast{position:fixed;right:24px;bottom:24px;padding:12px 18px;border-radius:var(--radius);background:var(--panel);border:1px solid var(--accent);opacity:0;transform:translateY(14px);transition:all .4s var(--ease);pointer-events:none}
 #toast.show{opacity:1;transform:none}
@@ -87,12 +102,12 @@ body.noanim *{transition:none!important;animation:none!important}
 body.focusring :focus-visible{outline:3px solid var(--accent);outline-offset:2px}
 body.compact nav button span.t{display:none}body.compact #app{grid-template-columns:72px 1fr}
 @media(max-width:640px){#app{grid-template-columns:1fr}nav{flex-direction:row;overflow:auto;border-right:0;border-bottom:1px solid var(--line)}nav .sp,#ping{display:none}}
-@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}#wt span{opacity:1;filter:none;transform:none}}
 </style>
 </head>
 <body>
 
-<form id="login" class="glass">
+<form id="login" class="glass hide">
   <h1>Вход</h1>
   <p>Введите пароль, чтобы открыть настройки.</p>
   <input id="pw" class="field" type="password" placeholder="Пароль" autocomplete="current-password" autofocus>
@@ -100,6 +115,8 @@ body.compact nav button span.t{display:none}body.compact #app{grid-template-colu
   <button class="btn" type="submit">Войти</button>
 </form>
 
+<div id="bot" class="glass hide"><h1>Проверка</h1><p>Подтвердите, что вы не бот: нажмите кнопку и удерживайте.</p><button id="hold" type="button" class="btn"><span id="hl">Удерживайте</span></button><div id="berr"></div></div>
+<div id="intro"><div class="blob b1"></div><div class="blob b2"></div><h1 id="wt">Добро пожаловать</h1><div id="ld"><div class="bar"><i id="pb"></i></div><small id="ls">Подготовка…</small></div></div>
 <div id="app" class="glass hide">
   <nav id="nav"></nav>
   <main id="main"></main>
@@ -122,14 +139,14 @@ const avt=(src,sz,name)=>src?`<div class="av" style="width:${sz}px;height:${sz}p
 /* ---- login ---- */
 $("#login").addEventListener("submit",e=>{
   e.preventDefault();
-  if($("#pw").value===PASSWORD){store.set("auth",true);enter()}
+  if($("#pw").value===PASSWORD){toBot()}
   else{const l=$("#login");$("#err").textContent="Неверный пароль. Попробуйте ещё раз.";l.classList.remove("shake");void l.offsetWidth;l.classList.add("shake");$("#pw").select()}
 });
 function enter(){
-  const l=$("#login");l.style.transition="opacity .35s,transform .35s";l.style.opacity=0;l.style.transform="scale(.97)";
+  const l=$("#bot");l.style.transition="opacity .35s,transform .35s";l.style.opacity=0;l.style.transform="scale(.97)";
   setTimeout(()=>{l.classList.add("hide");$("#app").classList.remove("hide");render();startPing()},l.isConnected&&!S.anim?0:340);
 }
-if(store.get("auth",false)){$("#login").classList.add("hide");$("#app").classList.remove("hide");setTimeout(()=>{render();startPing()})}
+
 
 /* ---- apply settings ---- */
 function apply(){
@@ -147,7 +164,7 @@ let tt;function toast(m="Тема обновлена"){const t=$("#toast");t.tex
 function change(k,v,quiet){S[k]=v;save();apply();if(!quiet)toast()}
 
 /* ---- views ---- */
-const TABS=[["Profile","Профиль"],["Team","Команда",2],["Alerts","Уведомления",3],["Security","Безопасность"],["Themes","Темы"],["Connections","Подключения",2],["Subscription","Подписка"],["Shortcuts","Горячие клавиши"],["Dev","Для разработчиков"]];
+const TABS=[["Profile","Профиль"],["Team","Команда",2],["Friends","Друзья"],["Alerts","Уведомления",3],["Security","Безопасность"],["Themes","Темы"],["Connections","Подключения",2],["Subscription","Подписка"],["Shortcuts","Горячие клавиши"],["Dev","Для разработчиков"]];
 const COLORS=["#3b82f6","#22c55e","#facc15","#fb923c","#ef4444","#a855f7","#6366f1","#06b6d4","#ff6b5e"];
 const FONTS=["SF Pro","Inter","Segoe UI","Georgia","Consolas"];
 
@@ -174,6 +191,7 @@ function stub(){
     const w=ag%10===1&&ag%100!==11?"год":([2,3,4].includes(ag%10)&&!(ag%100>=12&&ag%100<=14))?"года":"лет";
     return head("Команда","2 участника в пространстве.")+`<div class="card" style="display:flex;gap:16px;align-items:center">${avt(S.avatar,60,S.name)}<div><b style="font-size:19px">${esc(S.name)}</b><br><small>Разработчик</small><br><small>Дата рождения: 02.10.2007 (${ag} ${w})</small></div><span class="dot ok"></span></div>
     <div class="li" style="margin-top:12px"><div class="av">R</div><div><b>rekogz</b><br><small>Проверяет сайт</small></div><span class="dot" title="Не в сети"></span></div>`}
+  if(t==="Friends")return head("Друзья","Добавляйте друзей по ключу и смотрите их статистику.")+`<div style="display:flex;gap:10px"><input class="field" id="fk" placeholder="Вставьте ключ друга" autocomplete="off"><button class="btn sm" id="fa">Добавить</button></div><div id="fr"></div>`;
   if(t==="Alerts")return head("Уведомления","Выберите, о чём вам сообщать.")+tgl("n_mail","Письма на почту","Сводка за день.")+tgl("n_push","Всплывающие окна","Сообщения от команды.")+tgl("n_sound","Звук","Короткий сигнал при новом событии.")
   +`<div class="lbl">Недавние</div><div class="li"><b>Макс добавил вас в проект</b><small style="margin-left:auto">5 мин</small></div><div class="li"><b>Тема обновлена</b><small style="margin-left:auto">1 ч</small></div><div class="li"><b>Новый вход в аккаунт</b><small style="margin-left:auto">вчера</small></div>`;
   if(t==="Security")return head("Безопасность","Защита входа и сессий.")+tgl("s_ask","Запрашивать пароль при каждом запуске","Выключит автоматический вход.")+tgl("s_lock","Блокировать после 5 неверных попыток","Защита от подбора пароля.")
@@ -182,7 +200,7 @@ function stub(){
     const row=(id,n,c,ch)=>`<div class="li"><div class="av" style="background:${c}">${ch}</div><div><b>${n}</b><br><small>${ac[id]?esc(ac[id].email||ac[id].name):"Не подключено"}</small></div><button class="btn sm ${ac[id]?"ghost":""}" style="margin-left:auto" data-p="${id}">${ac[id]?"Отключить":"Подключить"}</button></div>`;
     return head("Подключения","Сервисы, связанные с пространством.")+`<div class="card" id="cf"><b>Cloudflare WARP</b> <span class="spin">◌</span> <small>Проверяю…</small></div>`+row("google","Google","#4285f4","G")+row("yandex","Яндекс","#fc3f1d","Я")}
   if(t==="Subscription")return head("Подписка","Тарифы и лимиты.")+`<div class="card" style="text-align:center;padding:40px 20px"><span class="chip" style="background:var(--accent)">В разработке</span><b style="display:block;font-size:22px;margin-top:14px">Скоро будет</b><small>Раздел подписки ещё делается.</small></div>`;
-  if(t==="Shortcuts")return head("Горячие клавиши","Быстрые действия с клавиатуры.")+[["Открыть «Темы»","T"],["Тёмная / светлая тема","D"],["Выйти","Q"],["Обновить проверку Cloudflare","R"]].map(([a,k])=>`<div class="li"><b>${a}</b><kbd>${k}</kbd></div>`).join("")+`<p class="sub" style="margin-top:14px">Работают, когда курсор не в поле ввода.</p>`;
+  if(t==="Shortcuts")return head("Горячие клавиши","Быстрые действия с клавиатуры.")+[["Открыть «Темы»","T"],["Тёмная / светлая тема","D"],["Выйти","Q"],["Открыть «Друзья»","F"],["Обновить проверку Cloudflare","R"]].map(([a,k])=>`<div class="li"><b>${a}</b><kbd>${k}</kbd></div>`).join("")+`<p class="sub" style="margin-top:14px">Работают, когда курсор не в поле ввода.</p>`;
   if(t==="Dev")return head("Для разработчиков","Текущие настройки и сброс.")+`<pre>${esc(JSON.stringify({...S,avatar:S.avatar?"[изображение]":null},null,2))}</pre><button class="btn sm ghost" id="rs" style="margin-top:14px">Сбросить настройки</button>`;
   return "";
 }
@@ -203,6 +221,10 @@ function bindTab(){
   if(g("rs"))g("rs").onclick=()=>{localStorage.removeItem("settings");location.reload()};
   document.querySelectorAll("[data-soon]").forEach(b=>b.onclick=()=>toast("Скоро будет доступно"));
   if(S.tab==="Connections")cf();
+  if(S.tab==="Friends"){drawF();sync();
+    g("fa").onclick=async()=>{const v=g("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Нет связи с сервером");g("fk").value=""};
+    g("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;if(b.dataset.cp!==undefined){navigator.clipboard.writeText(myKey());toast("Ключ скопирован")}else if(b.dataset.a){const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)}};
+  }
 }
 async function trace(){
   for(const u of ["https://www.cloudflare.com/cdn-cgi/trace","https://1.1.1.1/cdn-cgi/trace","https://one.one.one.one/cdn-cgi/trace"]){
@@ -247,6 +269,7 @@ document.addEventListener("keydown",e=>{
   if(k==="t"){S.tab="Themes";save();render()}
   else if(k==="d")change("mode",document.documentElement.dataset.theme==="dark"?"light":"dark"),render();
   else if(k==="q")$("#out").click();
+  else if(k==="f"){S.tab="Friends";D={};save();render()}
   else if(k==="r"&&S.tab==="Connections")cf();
 });
 function themes(){
@@ -279,14 +302,66 @@ function bind(){
 
 /* ---- ping (works through Cloudflare WARP too) ---- */
 let pingTimer;
-function startPing(){clearInterval(pingTimer);const run=async()=>{
+function startPing(){clearInterval(pingTimer);clearInterval(nt);sync();nt=setInterval(sync,15000);const run=async()=>{
   const el=$("#ping");if(!el)return;const t=performance.now();
   try{await fetch("https://cloudflare.com/cdn-cgi/trace",{mode:"no-cors",cache:"no-store"});
     const ms=Math.round(performance.now()-t);el.querySelector("span").textContent=ms+" мс";el.querySelector("i").style.background=ms<80?"#22c55e":ms<200?"#facc15":"#ef4444"}
   catch{el.querySelector("span").textContent="нет сети";el.querySelector("i").style.background="#888"}};
   run();pingTimer=setInterval(run,5000)}
 matchMedia("(prefers-color-scheme:dark)").addEventListener("change",()=>S.mode==="auto"&&apply());
-apply();
+
+/* ---- вступление и проверка ---- */
+let nt;const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+async function boot(){
+  $("#wt").innerHTML=[..."Добро пожаловать"].map((c,i)=>`<span style="animation-delay:${i*60}ms">${c===" "?"&nbsp;":c}</span>`).join("");
+  await sleep(2100);$("#ld").classList.add("on");
+  const st=[["Проверяем соединение",async()=>{try{await fetch("https://www.cloudflare.com/cdn-cgi/trace",{mode:"no-cors",cache:"no-store"})}catch{}}],["Загружаем данные",()=>sleep(600)],["Готовим интерфейс",()=>sleep(600)]];
+  for(let i=0;i<st.length;i++){$("#ls").textContent=st[i][0]+"…";await st[i][1]();$("#pb").style.width=((i+1)/st.length*100)+"%";await sleep(400)}
+  await sleep(300);$("#intro").classList.add("out");$("#login").classList.remove("hide");$("#pw").focus();
+}
+function toBot(){const l=$("#login");l.style.transition="opacity .3s";l.style.opacity=0;setTimeout(()=>{l.classList.add("hide");$("#bot").classList.remove("hide")},300)}
+(()=>{const b=$("#hold"),hl=$("#hl");let t0,raf,ok=false;
+  const stop=()=>{if(ok)return;cancelAnimationFrame(raf);b.style.setProperty("--h","0%")};
+  b.addEventListener("pointerdown",e=>{
+    if(!e.isTrusted||navigator.webdriver){$("#berr").textContent="Проверка не пройдена: автоматические действия запрещены.";return}
+    t0=performance.now();
+    const tick=()=>{const p=Math.min(1,(performance.now()-t0)/1400);b.style.setProperty("--h",p*100+"%");
+      if(p<1)raf=requestAnimationFrame(tick);
+      else{ok=true;hl.textContent="Проверяем устройство…";setTimeout(()=>{hl.textContent="Готово ✓";setTimeout(enter,500)},900)}};
+    tick()});
+  ["pointerup","pointerleave","pointercancel"].forEach(v=>b.addEventListener(v,stop));
+})();
+
+/* ---- друзья и статистика ---- */
+let N=store.get("net",null),F=null,lastT=Date.now(),newV=true;
+const myKey=()=>N.id.match(/.{8}/g).join("-");
+const TN=Object.fromEntries(TABS.map(t=>[t[0],t[1]]));
+const fmt=s=>s<60?Math.round(s)+" с":s<3600?Math.round(s/60)+" мин":Math.floor(s/3600)+" ч "+Math.round(s%3600/60)+" мин";
+const online=t=>Date.now()-t<45000;
+const ago=t=>online(t)?"в сети":"был(а) "+new Date(t).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"});
+async function api(path,body){const r=await fetch(path,{method:"POST",body:JSON.stringify(body)});if(!r.ok)throw r.status;return r.json()}
+async function sync(act,key){
+  const now=Date.now(),dt=document.hidden?0:Math.min(120,(now-lastT)/1000);lastT=now;
+  try{
+    if(!N){N=await api("/api/register",{});store.set("net",N)}
+    F=await api("/api/sync",{...N,name:S.name,dt,tab:S.tab,nv:newV,act,key});newV=false;
+  }catch(e){F={off:1}}
+  if(S.tab==="Friends")drawF();
+  return F;
+}
+function drawF(){
+  const el=document.getElementById("fr");if(!el)return;
+  if(!F)return el.innerHTML='<small style="color:var(--mut)">Загрузка…</small>';
+  if(F.off||!N)return el.innerHTML='<div class="card"><b>Сервер недоступен</b><br><small>Друзья работают только на опубликованном сайте с подключённой базой KV. Локально через Live Server раздел не заработает.</small></div>';
+  const open=[...el.querySelectorAll("details[open]")].map(d=>d.dataset.id);
+  const stat=f=>{const t=Object.entries(f.tabs||{}).sort((a,b)=>b[1]-a[1]).slice(0,6),mx=t[0]?t[0][1]:1;
+    return `<div class="kv"><div><small>Всего на сайте</small><b>${fmt(f.secs)}</b></div><div><small>Визитов</small><b>${f.visits}</b></div></div><div class="lbl">Где проводит время</div>`+(t.length?t.map(([k,v])=>`<div style="margin-top:10px"><small>${esc(TN[k]||k)}: ${fmt(v)}</small><div class="bar"><i style="width:${v/mx*100}%"></i></div></div>`).join(""):"<small>Пока нет данных.</small>")};
+  el.innerHTML=`<div class="card"><b>Ваш ключ</b><pre style="word-break:break-all;white-space:pre-wrap">${myKey()}</pre><button class="btn sm" data-cp>Копировать ключ</button><br><small style="display:block;margin-top:10px">Давайте ключ только тем, кого хотите добавить. Принявшие заявку друзья видят вашу статистику: время на сайте, число визитов и разделы.</small></div>`
+  +(F.in.length?'<div class="lbl">Заявки вам</div>'+F.in.map(u=>`<div class="li"><b>${esc(u.name)}</b><span style="margin-left:auto;display:flex;gap:8px"><button class="btn sm" data-a="acc" data-k="${u.id}">Принять</button><button class="btn sm ghost" data-a="del" data-k="${u.id}">Отклонить</button></span></div>`).join(""):"")
+  +(F.out.length?'<div class="lbl">Отправлено</div>'+F.out.map(u=>`<div class="li"><b>${esc(u.name)}</b><small style="margin-left:auto">ждёт ответа</small><button class="btn sm ghost" data-a="del" data-k="${u.id}">Отозвать</button></div>`).join(""):"")
+  +`<div class="lbl">Друзья (${F.f.length})</div>`+(F.f.length?F.f.map(u=>`<details class="card" data-id="${u.id}"${open.includes(u.id)?" open":""}><summary style="cursor:pointer;display:flex;align-items:center;gap:10px"><b>${esc(u.name)}</b><small>${ago(u.last)}</small><span class="dot ${online(u.last)?"ok":""}"></span></summary>${stat(u)}<button class="btn sm ghost" style="margin-top:14px" data-a="del" data-k="${u.id}">Удалить из друзей</button></details>`).join(""):'<small style="color:var(--mut)">Пока никого. Вставьте ключ друга выше.</small>');
+}
+apply();boot();
 </script>
 </body>
 </html>

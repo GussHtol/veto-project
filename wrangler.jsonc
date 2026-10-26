@@ -1,0 +1,13 @@
+{
+  "name": "guanders",
+  "main": "worker.js",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "kv_namespaces": [
+    { "binding": "KV", "id": "c4d492f6d1494d2697e95a542e1b1750" }
+  ]
+}
