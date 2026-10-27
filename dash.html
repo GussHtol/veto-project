@@ -188,6 +188,9 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--a);box-s
 .ckg button{aspect-ratio:1;border-radius:50%;border:1px solid rgba(255,255,255,.18);cursor:pointer;background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.55),color-mix(in srgb,var(--a) 55%,transparent) 55%,color-mix(in srgb,var(--a) 25%,transparent));box-shadow:inset 0 -3px 8px rgba(0,0,0,.3),0 3px 8px rgba(0,0,0,.3);transition:transform .15s var(--e),opacity .2s}
 .ckg button:active{transform:scale(.88)}.ckg button.pop{transform:scale(.6);opacity:.25;box-shadow:none;pointer-events:none}
 .ckup{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.ckup small{display:block;opacity:.75;margin-top:2px}.ckup button:disabled{opacity:.45;cursor:default;transform:none}
+.ckl{margin-top:16px;padding-top:14px;border-top:1px solid var(--l)}.ckl h4{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:8px}
+#clb{max-height:240px;overflow:auto}.lbr{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px}.lbr.me{background:color-mix(in srgb,var(--a) 20%,transparent)}
+.lbr .rk{width:26px;text-align:center;flex:none;color:var(--m)}.lbr .tt{flex:1;min-width:0}.lbr b{font-variant-numeric:tabular-nums}
 body.noanim *{transition:none!important;animation:none!important}
 </style>
 </head>
@@ -215,7 +218,8 @@ body.noanim *{transition:none!important;animation:none!important}
       <div class="seg" id="ckt"><button data-m="o" class="on">Кликер</button><button data-m="b">Пупырка</button></div>
       <div id="cko"><div class="ckw" id="ckw"><button id="ckb" aria-label="Нажми"></button></div><div class="s" id="ckc" style="text-align:center">Нажимай и расслабляйся</div>
         <div class="ckup"><button class="b ghost" id="cku1" style="margin:0;padding:10px"><span>+1 за клик</span><small id="cku1c"></small></button><button class="b ghost" id="cku2" style="margin:0;padding:10px"><span>Автоклик +1/сек</span><small id="cku2c"></small></button></div></div>
-      <div id="ckp" class="hide"><div class="ckg" id="ckg"></div><div class="s" id="ckpc" style="text-align:center"></div><button class="b ghost" id="ckr" style="margin-top:8px">Новая плёнка</button></div></div>
+      <div id="ckp" class="hide"><div class="ckg" id="ckg"></div><div class="s" id="ckpc" style="text-align:center"></div><button class="b ghost" id="ckr" style="margin-top:8px">Новая плёнка</button></div>
+      <div class="ckl"><h4>Таблица лидеров <span class="s" id="clt" style="margin-left:auto;font-weight:400;font-size:13px"></span></h4><div id="clb"><span class="s">Загружаю…</span></div></div></div>
     <div class="g w"><h3>Сеть и сайт <span class="chip" id="nst" style="background:#22c55e">Онлайн</span></h3><div class="pgh"><b id="pgn">—</b><span class="s">мс пинг до сервера</span></div><canvas id="pgc" height="70"></canvas><div class="nk" id="nk"></div><button class="b ghost" id="spt" style="margin-top:12px">Проверить скорость</button><div class="s" id="spr" style="text-align:center;margin-top:8px"></div></div>
     <div class="g w qt"><p id="qp"></p><span class="s" style="margin-top:10px">Фокус на прогрессе, а не на идеале.</span></div>
   </main>
@@ -626,18 +630,18 @@ $("atq").onclick=()=>{admTab="q";aBack()};
 $("atr").onclick=()=>{admTab="r";acur=null;$("atv").classList.add("hide");$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Жалобы";aPoll()};
 
 /* ---- антистресс: кликер и пупырка ---- */
-let CK={s:0,p:1,a:0,pp:0,m:1},ckC=0,ckLast=0,ckT,ckD=0,ckAC,BW=[];
+let CK={s:0,t:0,p:1,a:0,pp:0,m:1},ckC=0,ckLast=0,ckT,ckD=0,ckAC,BW=[];
 const ckN=n=>n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e4?(n/1e3).toFixed(1)+"k":String(Math.floor(n)),ckCost=(b,r,n)=>Math.round(b*Math.pow(r,n));
 function ckPop(f){if(!CK.m)return;try{ckAC=ckAC||new(window.AudioContext||window.webkitAudioContext)();const t=ckAC.currentTime,o=ckAC.createOscillator(),g=ckAC.createGain();o.frequency.setValueAtTime(f,t);o.frequency.exponentialRampToValueAtTime(f*.4,t+.08);g.gain.setValueAtTime(.18,t);g.gain.exponentialRampToValueAtTime(.001,t+.1);o.connect(g);g.connect(ckAC.destination);o.start(t);o.stop(t+.11)}catch{}}
 function ckDraw(){const c1=ckCost(25,1.6,CK.p-1),c2=ckCost(60,1.7,CK.a),mul=1+Math.floor(ckC/10);
-  $("cks").textContent=ckN(CK.s);$("cksd").textContent=CK.m?"🔊":"🔇";
+  $("cks").textContent=ckN(CK.s);$("clt").textContent="Заработано: "+ckN(CK.t);$("cksd").textContent=CK.m?"🔊":"🔇";
   $("cku1c").textContent=c1+" · сейчас "+CK.p;$("cku2c").textContent=c2+" · сейчас "+CK.a+"/сек";
   $("cku1").disabled=CK.s<c1;$("cku2").disabled=CK.s<c2;
   $("ckc").textContent=Date.now()-ckLast<1000&&ckC>=10?"Комбо ×"+mul+" · серия "+ckC:"Нажимай и расслабляйся";
   $("ckpc").textContent="Лопнуто всего: "+ckN(CK.pp)}
 function bwNew(){BW=Array(30).fill(0);$("ckg").innerHTML=BW.map((v,i)=>`<button data-i="${i}" aria-label="Пузырь"></button>`).join("");ckDraw()}
 $("ckb").onclick=e=>{const n=Date.now(),w=$("ckw"),r=w.getBoundingClientRect();ckC=n-ckLast<700?ckC+1:1;ckLast=n;
-  const mul=1+Math.floor(ckC/10),g=CK.p*mul;CK.s+=g;ckD=1;
+  const mul=1+Math.floor(ckC/10),g=CK.p*mul;CK.s+=g;CK.t+=g;ckD=1;
   $("ckb").animate([{transform:"scale(.88)"},{transform:"scale(1)"}],{duration:170,easing:"cubic-bezier(.3,1.6,.5,1)"});
   const f=document.createElement("span");f.className="ckf";f.textContent="+"+g;f.style.left=(e.detail?e.clientX-r.left:r.width/2)-8+"px";f.style.top=(e.detail?e.clientY-r.top:r.height/2)-14+"px";w.appendChild(f);setTimeout(()=>f.remove(),800);
   ckPop(280+Math.random()*120+Math.min(ckC,20)*14);navigator.vibrate&&navigator.vibrate(8);
@@ -649,8 +653,14 @@ $("ckt").onclick=e=>{const b=e.target.closest("button");if(!b)return;document.qu
 $("ckg").onclick=e=>{const b=e.target.closest("button");if(!b||b.classList.contains("pop"))return;BW[+b.dataset.i]=1;b.classList.add("pop");CK.pp++;ckD=1;ckPop(480+Math.random()*380);navigator.vibrate&&navigator.vibrate(6);ckDraw();if(BW.every(Boolean))setTimeout(bwNew,700)};
 $("ckg").onmouseover=e=>{if(e.buttons===1)$("ckg").onclick(e)};
 $("ckr").onclick=bwNew;
-function ckInit(){const c=D.clk||{};CK={s:Math.max(0,+c.s||0),p:Math.max(1,+c.p||1),a:Math.max(0,+c.a||0),pp:Math.max(0,+c.pp||0),m:c.m===0?0:1};D.clk=CK;bwNew();
-  setInterval(()=>{if(CK.a){CK.s+=CK.a;ckD=1;ckDraw()}},1000);setInterval(()=>{if(ckD){ckD=0;save()}},20000);
+const LBM=["🥇","🥈","🥉"];
+function lbDraw(r){const row=(x,k)=>`<div class="lbr${x.l===LOGIN?" me":""}"><span class="rk">${LBM[k]||k+1}</span><span class="tt">${esc(x.n)} <small class="s">@${esc(x.l)}</small></span><b>${ckN(x.s)}</b></div>`;
+  const rows=(r.top||[]).map((x,i)=>row(x,i));
+  if(r.me&&r.me.r>10)rows.push('<div class="s" style="text-align:center">…</div>'+row({l:LOGIN,n:P.n||LOGIN,s:r.me.s},r.me.r-1));
+  $("clb").innerHTML=rows.join("")||'<span class="s">Пока никого. Набери очки!</span>'}
+async function lbSync(){if(document.hidden)return;try{lbDraw(await api("lb",{token:TK,t:Math.floor(CK.t),n:P.n||LOGIN}))}catch{}}
+function ckInit(){const c=D.clk||{};CK={s:Math.max(0,+c.s||0),t:Math.max(+c.t||0,+c.s||0),p:Math.max(1,+c.p||1),a:Math.max(0,+c.a||0),pp:Math.max(0,+c.pp||0),m:c.m===0?0:1};D.clk=CK;bwNew();
+  setInterval(()=>{if(CK.a){CK.s+=CK.a;CK.t+=CK.a;ckD=1;ckDraw()}},1000);setInterval(()=>{if(ckD){ckD=0;save()}},20000);lbSync();setInterval(lbSync,30000);
   document.addEventListener("visibilitychange",()=>{if(document.hidden&&ckD){ckD=0;save()}})}
 
 /* ---- старт ---- */

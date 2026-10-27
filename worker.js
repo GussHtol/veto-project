@@ -93,6 +93,21 @@ export default{async fetch(req,env){
     return J({token:await tok(l),login:l,data:a.data,perk:!!a.perk});
   }
   if(u.pathname==="/api/me"){const m=await who();return m?J({login:m.l,data:m.a.data,perk:!!m.a.perk}):J({err:"auth"},401)}
+  if(u.pathname==="/api/lb"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    let lb=JSON.parse(await env.KV.get("lb")||"{}");
+    const s=Math.floor(+b.t);
+    if(Number.isFinite(s)&&s>0&&s<=1e13){
+      const n=String(b.n||"").trim().slice(0,32),o=lb[m.l];
+      if(!o||s>o.s||(n&&n!==o.n)){
+        lb[m.l]={n:n||(o&&o.n)||m.l,s:Math.max(s,o?o.s:0)};
+        lb=Object.fromEntries(Object.entries(lb).sort((x,y)=>y[1].s-x[1].s).slice(0,100));
+        await env.KV.put("lb",JSON.stringify(lb));
+      }
+    }
+    const e=Object.entries(lb).sort((x,y)=>y[1].s-x[1].s),i=e.findIndex(x=>x[0]===m.l);
+    return J({top:e.slice(0,10).map(([l,v])=>({l,n:v.n,s:v.s})),me:i<0?null:{r:i+1,s:e[i][1].s}});
+  }
   if(u.pathname==="/api/save"){
     const m=await who();if(!m)return J({err:"auth"},401);
     const d=JSON.stringify(b.data||{});if(d.length>30000)return J({err:"big"},400);
