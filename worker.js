@@ -3,6 +3,7 @@ const hex=b=>[...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,"0")).join(
 const sha=async t=>hex(await crypto.subtle.digest("SHA-256",new TextEncoder().encode(t)));
 const rnd=n=>hex(crypto.getRandomValues(new Uint8Array(n)));
 const cut=(a,x)=>a.filter(v=>v!==x);
+const PERK="533694c18d4f9795acb6e5d2b226d0de1f19b89855ff251f8b4ea5614611899b";
 
 export default{async fetch(req,env){
   const u=new URL(req.url);
@@ -39,9 +40,9 @@ export default{async fetch(req,env){
   if(u.pathname==="/api/log"){
     const l=low(b.login),a=await ag(l);
     if(!a||a.h!==await sha(a.salt+String(b.pass||"")))return J({err:"Неверный логин или пароль"},401);
-    return J({token:await tok(l),login:l,data:a.data});
+    return J({token:await tok(l),login:l,data:a.data,perk:!!a.perk});
   }
-  if(u.pathname==="/api/me"){const m=await who();return m?J({login:m.l,data:m.a.data}):J({err:"auth"},401)}
+  if(u.pathname==="/api/me"){const m=await who();return m?J({login:m.l,data:m.a.data,perk:!!m.a.perk}):J({err:"auth"},401)}
   if(u.pathname==="/api/save"){
     const m=await who();if(!m)return J({err:"auth"},401);
     const d=JSON.stringify(b.data||{});if(d.length>30000)return J({err:"big"},400);
@@ -53,6 +54,29 @@ export default{async fetch(req,env){
     if(!d){await env.KV.delete("bn:"+m.l);return J({ok:1})}
     if(!/^data:image\/(gif|png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(d)||d.length>2900000)return J({err:"Файл слишком большой (до 2 МБ) или неверный формат"},400);
     await env.KV.put("bn:"+m.l,d);return J({ok:1});
+  }
+  const hx=x=>String(x||"").toLowerCase().replace(/[^0-9a-f]/g,"");
+  if(u.pathname==="/api/unlock"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    if(await sha("vp:"+String(b.code||""))!==PERK)return J({err:"Неверный пароль"},403);
+    m.a.perk=1;await env.KV.put("a:"+m.l,JSON.stringify(m.a));
+    const i=hx(b.id),n=i&&await get(i);
+    if(n&&n.h===await sha(String(b.sec))){n.perk=1;await put(i,n)}
+    return J({ok:1});
+  }
+  if(u.pathname==="/api/dm"){
+    const i=hx(b.id),me2=i&&await get(i);
+    if(!me2||me2.h!==await sha(String(b.sec)))return J({err:"auth"},401);
+    const o=hx(b.with);
+    if(!me2.f.includes(o))return J({err:"Вы не друзья"},403);
+    const key="m:"+[i,o].sort().join(":");
+    let ms=JSON.parse(await env.KV.get(key)||"[]");
+    const t=String(b.text||"").trim().slice(0,500);
+    if(t){ms.push({f:i,t,ts:Date.now()});ms=ms.slice(-150);await env.KV.put(key,JSON.stringify(ms));
+      const un=JSON.parse(await env.KV.get("un:"+o)||"{}");un[i]=(un[i]||0)+1;await env.KV.put("un:"+o,JSON.stringify(un))}
+    const mine=JSON.parse(await env.KV.get("un:"+i)||"{}");
+    if(mine[o]){mine[o]=0;await env.KV.put("un:"+i,JSON.stringify(mine))}
+    return J({ms});
   }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
@@ -95,7 +119,7 @@ export default{async fetch(req,env){
   // статистика самого пользователя
   const dt=Math.max(0,Math.min(120,+b.dt||0));
   me.name=String(b.name||me.name).slice(0,40);
-  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
+  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,fr:me.perk&&["gold","neon","fire","ice","sakura"].includes(q.fr)?q.fr:"",fx:me.perk&&["shine","aurora","glow","gold"].includes(q.fx)?q.fx:"",bp:me.perk&&/^[a-z]{3,10}$/.test(q.bp||"")?q.bp:"",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
   me.secs+=dt;me.last=Date.now();
   if(b.nv)me.visits++;
   if(b.tab&&dt){const t=String(b.tab).slice(0,20);me.tabs[t]=(me.tabs[t]||0)+dt}
@@ -121,5 +145,5 @@ export default{async fetch(req,env){
 
   const pub=async(x,full)=>{const o=await get(x);return o?(full?{id:x,name:o.name,prof:o.prof,secs:o.secs,visits:o.visits,last:o.last,tabs:o.tabs}:{id:x,name:o.name,prof:o.prof}):null};
   const all=async(a,f)=>(await Promise.all(a.map(x=>pub(x,f)))).filter(Boolean);
-  return J({f:await all(me.f,1),in:await all(me.in),out:await all(me.out),msg});
+  return J({f:await all(me.f,1),in:await all(me.in),out:await all(me.out),msg,un:JSON.parse(await env.KV.get("un:"+id)||"{}")});
 }};
