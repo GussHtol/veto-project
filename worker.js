@@ -5,6 +5,7 @@ const rnd=n=>hex(crypto.getRandomValues(new Uint8Array(n)));
 const cut=(a,x)=>a.filter(v=>v!==x);
 const PERK="533694c18d4f9795acb6e5d2b226d0de1f19b89855ff251f8b4ea5614611899b";
 
+const serve=(by,ty,req,age)=>{const h={"content-type":ty,"cache-control":"public,max-age="+age,"accept-ranges":"bytes"},rg=/bytes=(\d*)-(\d*)/.exec(req.headers.get("range")||"");if(rg){const a=rg[1]?+rg[1]:0,e=rg[2]?Math.min(+rg[2],by.length-1):by.length-1;return new Response(by.slice(a,e+1),{status:206,headers:{...h,"content-range":`bytes ${a}-${e}/${by.length}`}})}return new Response(by,{headers:h})};
 export default{async fetch(req,env){
   const u=new URL(req.url);
   if(!u.pathname.startsWith("/api/"))return env.ASSETS.fetch(req);
@@ -32,10 +33,22 @@ export default{async fetch(req,env){
     const ty=(req.headers.get("content-type")||"").split(";")[0];
     if(!/^(image\/(gif|png|jpeg|webp)|video\/(mp4|webm))$/.test(ty))return J({err:"Неверный формат"},400);
     if(/^(image\/gif|video\/)/.test(ty)&&!a.perk)return J({err:"GIF и видео только по паролю"},403);
-    if((+req.headers.get("content-length")||0)>3200000)return J({err:"Файл больше 3 МБ"},400);
-    const buf=await req.arrayBuffer();if(buf.byteLength>3200000)return J({err:"Файл больше 3 МБ"},400);
+    if((+req.headers.get("content-length")||0)>24000000)return J({err:"Файл больше 24 МБ"},400);
+    const buf=await req.arrayBuffer();if(buf.byteLength>24000000)return J({err:"Файл больше 24 МБ"},400);
     await env.KV.put("bf:"+kd+":"+l,buf,{metadata:{t:ty}});
     return J({ok:1});
+  }
+  if(u.pathname==="/api/pm"&&req.method==="GET"){const r=await env.KV.getWithMetadata("pm:"+String(u.searchParams.get("i")||"").replace(/[^0-9a-f]/g,""),"arrayBuffer");if(!r.value)return new Response("",{status:404});return serve(new Uint8Array(r.value),(r.metadata&&r.metadata.t)||"application/octet-stream",req,3600)}
+  if(u.pathname==="/api/pup"&&req.method==="POST"){
+    const l=await env.KV.get("t:"+String(u.searchParams.get("token")||""));if(!l)return J({err:"auth"},401);
+    const ty=(req.headers.get("content-type")||"").split(";")[0];
+    if(!/^(image\/(gif|png|jpeg|webp)|video\/(mp4|webm))$/.test(ty))return J({err:"Неверный формат"},400);
+    if((+req.headers.get("content-length")||0)>24000000)return J({err:"Файл больше 24 МБ"},400);
+    const buf=await req.arrayBuffer();if(buf.byteLength>24000000)return J({err:"Файл больше 24 МБ"},400);
+    const id=(9e12-Date.now()).toString().padStart(13,"0")+rnd(4);
+    await env.KV.put("pm:"+id,buf,{metadata:{t:ty}});
+    await env.KV.put("p:"+id,JSON.stringify({id,l,t:ty.startsWith("video")?"v":"i",c:String(u.searchParams.get("c")||"").slice(0,200),ts:Date.now(),v:[],lk:[],cm:[],rp:[]}));
+    return J({ok:1,id});
   }
   if(req.method!=="POST")return J({err:"method"},405);
   const get=async id=>JSON.parse(await env.KV.get("u:"+id)||"null"),put=(id,o)=>env.KV.put("u:"+id,JSON.stringify(o));
@@ -104,6 +117,34 @@ export default{async fetch(req,env){
     const mine=JSON.parse(await env.KV.get("un:"+i)||"{}");
     if(mine[o]){mine[o]=0;await env.KV.put("un:"+i,JSON.stringify(mine))}
     return J({ms});
+  }
+  if(u.pathname==="/api/feed"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    const L=m.l,pk=x=>({id:x.id,l:x.l,t:x.t,c:x.c,ts:x.ts,views:x.v.length,likes:x.lk.length,liked:x.lk.includes(L),cm:x.cm.length});
+    const id=hx(b.id);
+    if(b.act==="rlist"){const ids=JSON.parse(await env.KV.get("rpt")||"[]").slice(-30),a=(await Promise.all(ids.map(async i=>{const p=JSON.parse(await env.KV.get("p:"+i)||"null");return p&&p.rp.length?{id:i,l:p.l,t:p.t,c:p.c,ts:p.ts,rp:p.rp}:null}))).filter(Boolean);return J({list:a})}
+    if(b.act==="rdel"||b.act==="rok"){const i=String(b.id||"").replace(/[^0-9a-f]/g,""),ids=JSON.parse(await env.KV.get("rpt")||"[]").filter(x=>x!==i);await env.KV.put("rpt",JSON.stringify(ids));
+      if(b.act==="rdel"){await env.KV.delete("p:"+i);await env.KV.delete("pm:"+i)}else{const p=JSON.parse(await env.KV.get("p:"+i)||"null");if(p){p.rp=[];await env.KV.put("p:"+i,JSON.stringify(p))}}return J({ok:1})}
+    if(b.act==="list"){const l=await env.KV.list({prefix:"p:",limit:20});const ps=(await Promise.all(l.keys.map(async k=>JSON.parse(await env.KV.get(k.name)||"null")))).filter(Boolean);return J({posts:ps.map(pk)})}
+    const p=JSON.parse(await env.KV.get("p:"+id)||"null");if(!p)return J({err:"Публикация не найдена"},404);
+    const sv=()=>env.KV.put("p:"+id,JSON.stringify(p));
+    if(b.act==="get")return J({post:{...pk(p),cm:p.cm.slice(-50)}});
+    if(b.act==="view"){if(!p.v.includes(L)&&p.v.length<3000){p.v.push(L);await sv()}return J({ok:1})}
+    if(b.act==="like"){p.lk=p.lk.includes(L)?cut(p.lk,L):[...p.lk,L];await sv();return J({liked:p.lk.includes(L),likes:p.lk.length})}
+    if(b.act==="comment"){const t=String(b.text||"").trim().slice(0,300);if(!t)return J({err:"Пусто"},400);p.cm.push({l:L,t,ts:Date.now()});p.cm=p.cm.slice(-100);await sv();return J({ok:1})}
+    if(b.act==="report"){if(!p.rp.some(r=>r.l===L)){p.rp.push({l:L,why:String(b.text||"").slice(0,200)});await sv();const ix=JSON.parse(await env.KV.get("rpt")||"[]");if(!ix.includes(id)){ix.push(id);await env.KV.put("rpt",JSON.stringify(ix.slice(-100)))}}return J({ok:1})}
+    if(b.act==="del"){if(p.l!==L)return J({err:"Нельзя"},403);await env.KV.delete("p:"+id);await env.KV.delete("pm:"+id);return J({ok:1})}
+    return J({err:"?"},400);
+  }
+  if(u.pathname==="/api/ai"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    if(!env.AI)return J({err:"ИИ ещё не подключён (нужна привязка Workers AI)"},503);
+    const day="ai:"+m.l+":"+new Date().toISOString().slice(0,10),n=+(await env.KV.get(day)||0);
+    if(n>=25)return J({err:"Лимит на сегодня: 25 сообщений. Приходите завтра."},429);
+    const ms=(Array.isArray(b.messages)?b.messages:[]).slice(-10).map(x=>({role:x.role==="assistant"?"assistant":"user",content:String(x.content||"").slice(0,1500)}));
+    try{const r=await env.AI.run("@cf/meta/llama-3.1-8b-instruct",{messages:[{role:"system",content:"Ты дружелюбный помощник на сайте. Отвечай по-русски, кратко и по делу."},...ms],max_tokens:500});
+      await env.KV.put(day,String(n+1),{expirationTtl:90000});return J({reply:String(r.response||"")})}
+    catch(e){return J({err:"Ошибка ИИ, попробуйте позже"},500)}
   }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
