@@ -5,6 +5,7 @@ const rnd=n=>hex(crypto.getRandomValues(new Uint8Array(n)));
 const cut=(a,x)=>a.filter(v=>v!==x);
 const PERK="533694c18d4f9795acb6e5d2b226d0de1f19b89855ff251f8b4ea5614611899b";
 
+const tid=x=>String(x||"").toLowerCase().replace(/[^0-9a-z]/g,"").slice(0,16);
 const serve=(by,ty,req,age)=>{const h={"content-type":ty,"cache-control":"public,max-age="+age,"accept-ranges":"bytes"},rg=/bytes=(\d*)-(\d*)/.exec(req.headers.get("range")||"");if(rg){const a=rg[1]?+rg[1]:0,e=rg[2]?Math.min(+rg[2],by.length-1):by.length-1;return new Response(by.slice(a,e+1),{status:206,headers:{...h,"content-range":`bytes ${a}-${e}/${by.length}`}})}return new Response(by,{headers:h})};
 export default{async fetch(req,env){
   const u=new URL(req.url);
@@ -49,6 +50,19 @@ export default{async fetch(req,env){
     await env.KV.put("pm:"+id,buf,{metadata:{t:ty}});
     await env.KV.put("p:"+id,JSON.stringify({id,l,t:ty.startsWith("video")?"v":"i",c:String(u.searchParams.get("c")||"").slice(0,200),ts:Date.now(),v:[],lk:[],cm:[],rp:[]}));
     return J({ok:1,id});
+  }
+  // ---- музыка (загрузка только админом) ----
+  if(u.pathname==="/api/tracks"&&req.method==="GET")return new Response(JSON.stringify({list:JSON.parse(await env.KV.get("tracks")||"[]")}),{headers:{"content-type":"application/json","cache-control":"no-store"}});
+  if(u.pathname==="/api/tf"&&req.method==="GET"){const k=u.searchParams.get("k")==="c"?"c":"a",r=await env.KV.getWithMetadata("tf:"+tid(u.searchParams.get("i"))+":"+k,"arrayBuffer");if(!r.value)return new Response("",{status:404});return serve(new Uint8Array(r.value),(r.metadata&&r.metadata.t)||"application/octet-stream",req,86400)}
+  if(u.pathname==="/api/tup"&&req.method==="POST"){
+    if(!env.ADMIN_PASS||req.headers.get("x-pw")!==env.ADMIN_PASS)return J({err:"auth"},401);
+    const k=u.searchParams.get("k")==="c"?"c":"a",i=tid(u.searchParams.get("i")),ty=(req.headers.get("content-type")||"").split(";")[0];
+    if(!i)return J({err:"bad id"},400);
+    if(k==="c"?!/^image\/(jpeg|png|webp)$/.test(ty):!/^audio\/[a-z0-9.+-]+$/.test(ty))return J({err:"Неверный формат"},400);
+    if((+req.headers.get("content-length")||0)>24000000)return J({err:"Файл больше 24 МБ"},400);
+    const buf=await req.arrayBuffer();if(buf.byteLength>24000000)return J({err:"Файл больше 24 МБ"},400);
+    await env.KV.put("tf:"+i+":"+k,buf,{metadata:{t:ty}});
+    return J({ok:1});
   }
   if(req.method!=="POST")return J({err:"method"},405);
   const get=async id=>JSON.parse(await env.KV.get("u:"+id)||"null"),put=(id,o)=>env.KV.put("u:"+id,JSON.stringify(o));
@@ -171,6 +185,16 @@ export default{async fetch(req,env){
       const l=await env.KV.list({prefix:"r:"});
       const a=(await Promise.all(l.keys.map(async k=>{const r=JSON.parse(await env.KV.get(k.name));return{vid:k.name.slice(2),name:r.name,status:r.status,last:r.last,unread:r.unread||0,pre:(r.msgs[r.msgs.length-1]||{}).t||""}}))).sort((x,y)=>y.last-x.last);
       return J({list:a});
+    }
+    if(b.act==="tadd"){
+      const i=tid(b.id),t=String(b.t||"").trim().slice(0,80);if(!i||!t)return J({err:"bad"},400);
+      if(!(await env.KV.list({prefix:"tf:"+i+":a"})).keys.length)return J({err:"Нет аудиофайла"},400);
+      const cv=(await env.KV.list({prefix:"tf:"+i+":c"})).keys.length?1:0,ls=JSON.parse(await env.KV.get("tracks")||"[]").filter(x=>x.id!==i);
+      ls.push({id:i,t,a:String(b.a||"").trim().slice(0,80),cv,ts:Date.now()});await env.KV.put("tracks",JSON.stringify(ls.slice(-100)));return J({ok:1});
+    }
+    if(b.act==="tdel"){
+      const i=tid(b.id);await Promise.all([env.KV.delete("tf:"+i+":a"),env.KV.delete("tf:"+i+":c")]);
+      await env.KV.put("tracks",JSON.stringify(JSON.parse(await env.KV.get("tracks")||"[]").filter(x=>x.id!==i)));return J({ok:1});
     }
     const v=norm(b.vid),r=await rg(v);if(!r)return J({err:"none"},404);
     if(b.act==="del"){await env.KV.delete("r:"+v);return J({gone:1})}

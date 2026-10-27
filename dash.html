@@ -235,7 +235,7 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="lb">Ключ для друзей</div><div class="kb" id="pk">…</div><button class="b ghost" id="pcp">Копировать ключ</button></aside>
 <aside id="dm" class="g"><h3><button id="dmb" class="hide">‹</button><span id="dmh" style="display:flex;align-items:center;gap:10px">Сообщения</span><button id="dx">✕</button></h3><div id="dml"></div><div id="dmv" class="hide"><div class="chat" id="dmc"></div><div class="row"><button class="b sm ghost" id="dma" style="margin:0" title="Фото или GIF">＋</button><input id="dmi" placeholder="Сообщение" maxlength="500" autocomplete="off"><button class="b sm" id="dms">→</button></div><input type="file" id="dmf" accept="image/*" hidden></div></aside>
 <div id="dec" class="hide"><div class="g dbox"><h3 style="font-size:20px">Украшение аватара</h3><div id="dlk" class="row"><input id="dcode" type="password" placeholder="Пароль для украшений"><button class="b sm" id="dun">Открыть</button></div><div class="dwrap"><div class="dgrid" id="dgr"></div><div class="dpv"><div id="dbig"></div><div id="dsm"></div></div></div><div class="row" style="justify-content:flex-end"><button class="b ghost sm" id="dcn" style="margin:0">Отмена</button><button class="b sm" id="dap">Применить</button></div></div></div>
-<aside id="adm" class="g"><h3><button id="adb" class="hide">‹</button><span id="adh">Заявки на ключ</span><button id="adx">✕</button></h3><button class="b sm ghost" id="ant" style="margin:0;align-self:flex-start">Уведомления</button><div class="row"><button class="b sm" id="atq" style="margin:0">Заявки</button><button class="b sm ghost" id="atr" style="margin:0">Жалобы<span id="arc"></span></button></div><div id="adl"></div><div id="adv" class="hide"><div class="chat" id="adc"></div><div class="row"><input id="adi" placeholder="Сообщение от имени бота" autocomplete="off"><button class="b sm" id="ads">→</button></div><div class="row" style="flex-wrap:wrap"><button class="b sm" id="aok" style="margin:0">Одобрить и выдать ключ</button><button class="b sm ghost" id="ano" style="margin:0">Отклонить</button><button class="b sm ghost" id="adel" style="margin:0;color:#ff7a7a">Удалить</button></div></div></aside>
+<aside id="adm" class="g"><h3><button id="adb" class="hide">‹</button><span id="adh">Заявки на ключ</span><button id="adx">✕</button></h3><button class="b sm ghost" id="ant" style="margin:0;align-self:flex-start">Уведомления</button><div class="row" style="flex-wrap:wrap"><button class="b sm" id="atq" style="margin:0">Заявки</button><button class="b sm ghost" id="atr" style="margin:0">Жалобы<span id="arc"></span></button><button class="b sm ghost" id="atm" style="margin:0">Музыка</button></div><div id="adl"></div><div id="atv" class="hide" style="overflow:auto;flex:1;flex-direction:column;gap:10px;display:flex"><div class="s">Новая песня в общий плейлист</div><input id="tn_t" placeholder="Название" maxlength="80"><input id="tn_a" placeholder="Исполнитель" maxlength="80"><div class="s">Аудио (mp3, до 24 МБ)</div><input type="file" id="tn_f" accept="audio/*"><div class="s">Обложка (картинка)</div><input type="file" id="tn_c" accept="image/*"><button class="b" id="tn_go" style="margin:0">Опубликовать</button><div class="s" style="margin-top:8px">Добавленные песни</div><div id="tn_l"></div></div><div id="adv" class="hide"><div class="chat" id="adc"></div><div class="row"><input id="adi" placeholder="Сообщение от имени бота" autocomplete="off"><button class="b sm" id="ads">→</button></div><div class="row" style="flex-wrap:wrap"><button class="b sm" id="aok" style="margin:0">Одобрить и выдать ключ</button><button class="b sm ghost" id="ano" style="margin:0">Отклонить</button><button class="b sm ghost" id="adel" style="margin:0;color:#ff7a7a">Удалить</button></div></div></aside>
 <div id="alg" class="hide"><div class="g dbox" style="width:min(380px,100%)"><h3 style="font-size:20px">Вход администратора</h3><p class="s">Только для владельца сайта.</p><input id="apw" type="password" placeholder="Пароль администратора"><button class="b" id="ago">Войти</button><button class="b ghost" id="acn" style="margin:0">Отмена</button></div></div>
 <div id="pvw" class="hide"><div class="g dbox" style="width:min(420px,100%)" id="pvb"></div></div>
 <div id="mp" class="hide"><div class="mbg" id="mbg"></div><canvas id="mvz"></canvas><button id="mpx" title="Закрыть">✕</button>
@@ -282,7 +282,7 @@ function start(l){
   $("hi").textContent=(h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер")+", "+l;
   LOGIN=l;$("usr").textContent="@"+l;
   $("qp").textContent="«Лучший способ предсказать будущее — создать его.»";
-  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();if(ADM)startAdm();
+  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();loadTracks();if(ADM)startAdm();
   au.volume=.45;au.play().catch(()=>{});
 }
 function tick(){const d=new Date();$("clk").textContent=d.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});$("dt").textContent=d.toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"})}
@@ -331,9 +331,11 @@ async function key(t,go){
 
 /* ---- плеер: добавляйте песни сюда ---- */
 const TR=[{t:"4runner",a:"Brenn!",s:"music.mp3",c:"cover.jpg"},{t:"Нежная",a:"Диана Гурцкая",s:"nezhnaya.mp3",c:"nezhnaya.jpg"},{t:"снов осколки",a:"nicebeatzprod",s:"snov.mp3",c:"snov.jpg"}];
+const BASE=TR.length;
+function trDraw(){$("tr").innerHTML=TR.map((y,j)=>`<div class="li${j===ci?" cur":""}" data-i="${j}"><i>${j+1}</i><span class="tt">${esc(y.t)}</span><small>${esc(y.a)}</small></div>`).join("");}
 const au=$("au");let ci=0;
 function ld(i,p){ci=(i+TR.length)%TR.length;const x=TR[ci];au.src=x.s;$("pi").src=x.c||"cover.jpg";$("pt").textContent=x.t;$("pa").textContent=x.a;mpUpd(x);
-  $("tr").innerHTML=TR.map((y,j)=>`<div class="li${j===ci?" cur":""}" data-i="${j}"><i>${j+1}</i><span class="tt">${esc(y.t)}</span><small>${esc(y.a)}</small></div>`).join("");if(p)au.play().catch(()=>{})}
+  trDraw();if(p)au.play().catch(()=>{})}
 $("pp").onclick=()=>au.paused?au.play():au.pause();
 $("pn").onclick=()=>ld(ci+1,1);$("pv").onclick=()=>ld(ci-1,1);
 $("tr").onclick=e=>{const r=e.target.closest(".li");if(r)ld(+r.dataset.i,1)};
@@ -489,7 +491,7 @@ async function aView(act,text){try{const r=await adm({act:act||"get",vid:acur,te
   const c=$("adc"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
   c.innerHTML=r.msgs.map(m=>`<div class="mg${m.f==="b"?" me":""}"><small>${m.f==="b"?"Вы (бот)":esc(r.name)} ${new Date(m.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(m.t)}</div>`).join("");if(low||act)c.scrollTop=c.scrollHeight}catch{}}
 function aOpen(v){acur=v;$("adl").classList.add("hide");$("adv").classList.remove("hide");$("adb").classList.remove("hide");$("adc").innerHTML="";aView()}
-function aBack(){acur=null;$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Заявки на ключ";aPoll()}
+function aBack(){acur=null;$("atv").classList.add("hide");if(admTab==="m")admTab="q";$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Заявки на ключ";aPoll()}
 function startAdm(open){clearInterval(adt);aKnown=null;aPoll();adt=setInterval(aPoll,10000);anRefresh();
   if(open){$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.remove("on");$("adm").classList.add("on");if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(anRefresh)}}
 $("gc").onclick=()=>{if(!ADM)return $("alg").classList.remove("hide");if($("adm").classList.toggle("on")){$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.remove("on");aBack()}};
@@ -585,10 +587,29 @@ $("fuo").onclick=async()=>{const f=$("fuf").files[0];if(!f)return toast("Выб�
     $("fup").classList.add("hide");$("fuf").value="";$("fuc2").value="";toast("Опубликовано");floadFeed()}catch(e){toast(e.err||"Не удалось загрузить")}
   $("fuo").disabled=false;$("fuo").textContent="Опубликовать"};
 
+
+/* ---- музыка: только админ ---- */
+let TX=[];
+async function loadTracks(){try{const r=await fetch("/api/tracks",{cache:"no-store"});if(!r.ok)return;const j=await r.json();TX=j.list||[];
+  TR.length=BASE;TX.forEach(x=>TR.push({id:x.id,t:x.t,a:x.a||"",s:"/api/tf?i="+x.id+"&k=a",c:x.cv?"/api/tf?i="+x.id+"&k=c":"cover.jpg"}));
+  if(ci>=TR.length)ld(0);else{trDraw();mList()}if(admTab==="m")mRender()}catch{}}
+function mRender(){$("tn_l").innerHTML=TX.length?TX.map(x=>`<div class="li"><span class="tt">${esc(x.t)}</span><small>${esc(x.a||"")}</small><button class="x" data-d="${esc(x.id)}" style="opacity:.8">🗑</button></div>`).join(""):'<span class="s">Пока нет добавленных песен.</span>'}
+$("atm").onclick=()=>{admTab="m";acur=null;$("adv").classList.add("hide");$("adl").classList.add("hide");$("adb").classList.add("hide");$("atv").classList.remove("hide");$("adh").textContent="Музыка";mRender()};
+function coverBlob(f){return new Promise((ok,no)=>{const u=URL.createObjectURL(f),i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=500;const m=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,500,500);URL.revokeObjectURL(u);c.toBlob(b=>b?ok(b):no({err:"Не удалось обработать обложку"}),"image/jpeg",.85)};i.onerror=()=>no({err:"Не удалось прочитать обложку"});i.src=u})}
+async function tUp(id,k,body,type){const r=await fetch("/api/tup?i="+encodeURIComponent(id)+"&k="+k,{method:"POST",headers:{"content-type":type,"x-pw":ADM},body});if(!r.ok)throw r.status===404?{err:"Сервер ещё не поддерживает загрузку музыки"}:(await r.json().catch(()=>({})))}
+$("tn_go").onclick=async()=>{if(!ADM)return toast("Нужен вход администратора");const t=$("tn_t").value.trim(),a=$("tn_a").value.trim(),f=$("tn_f").files[0],c=$("tn_c").files[0];
+  if(!t||!f)return toast("Нужны название и аудиофайл");if(f.size>24000000)return toast("Аудио больше 24 МБ");
+  const b=$("tn_go");b.disabled=true;b.textContent="Публикую…";
+  try{const id=Date.now().toString(36);await tUp(id,"a",f,f.type||"audio/mpeg");if(c)await tUp(id,"c",await coverBlob(c),"image/jpeg");
+    await adm({act:"tadd",id,t,a,cv:c?1:0});["tn_t","tn_a","tn_f","tn_c"].forEach(i=>$(i).value="");toast("Песня опубликована");await loadTracks()}
+  catch(e){toast(e&&e.err||"Не удалось опубликовать")}
+  b.disabled=false;b.textContent="Опубликовать"};
+$("tn_l").onclick=async e=>{const b=e.target.closest("[data-d]");if(!b||!confirm("Удалить песню из плейлиста?"))return;try{await adm({act:"tdel",id:b.dataset.d});toast("Удалено");await loadTracks()}catch{toast("Не удалось удалить")}};
+
 /* ---- жалобы (админ) ---- */
 function aRList(l){$("adl").innerHTML=l.length?l.map(x=>`<div class="li" style="display:block"><div class="row" style="align-items:flex-start;gap:10px">${x.t==="v"?`<video src="/api/pm?i=${x.id}" muted loop playsinline controls style="width:90px;border-radius:8px"></video>`:`<img src="/api/pm?i=${x.id}" style="width:90px;border-radius:8px" alt="">`}<div style="min-width:0"><b>${esc(x.l)}</b> <span class="chip" style="margin-left:6px">${x.rp.length}</span><br><small style="margin:0">${esc(x.c||"")}</small></div></div><p class="s" style="margin:8px 0">${x.rp.map(r=>esc(r.l)+": "+esc(r.why)).join("<br>")}</p><div class="row"><button class="b sm" data-a="rdel" data-id="${x.id}" style="margin:0">Удалить публикацию</button><button class="b sm ghost" data-a="rok" data-id="${x.id}" style="margin:0">Оставить</button></div></div>`).join(""):'<span class="s">Жалоб нет.</span>'}
 $("atq").onclick=()=>{admTab="q";aBack()};
-$("atr").onclick=()=>{admTab="r";acur=null;$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Жалобы";aPoll()};
+$("atr").onclick=()=>{admTab="r";acur=null;$("atv").classList.add("hide");$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Жалобы";aPoll()};
 
 /* ---- старт ---- */
 if(TK)api("me",{token:TK}).then(r=>{Object.assign(D,r.data);PERK=!!r.perk;start(r.login)}).catch(()=>{localStorage.removeItem("tk");TK=null;showAuth()});else showAuth();
