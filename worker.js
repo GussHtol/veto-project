@@ -147,7 +147,7 @@ export default{async fetch(req,env){
   const st=JSON.parse(await env.KV.get("s:"+id)||"null")||{name:me.name,secs:me.secs||0,visits:me.visits||0,last:me.last||0,tabs:me.tabs||{},prof:me.prof};
   const dt=Math.max(0,Math.min(120,+b.dt||0));
   st.name=String(b.name||st.name||me.name).slice(0,40);
-  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");st.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,fr:me.perk&&/^[a-z]{3,10}$/.test(q.fr||"")?q.fr:"",ag:me.perk?Math.floor(Number(q.ag))||0:0,bm:me.perk&&q.bm?1:0,am:me.perk&&q.am?1:0,fx:me.perk&&["shine","aurora","glow","gold"].includes(q.fx)?q.fx:"",bp:me.perk&&/^[a-z]{3,10}$/.test(q.bp||"")?q.bp:"",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
+  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");st.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,fr:me.perk&&/^[a-z]{3,10}$/.test(q.fr||"")?q.fr:"",ag:me.perk?Math.floor(Number(q.ag))||0:0,bm:me.perk&&q.bm?1:0,am:me.perk&&q.am?1:0,t1:me.perk&&/^#[0-9a-f]{6}$/i.test(q.t1||"")?q.t1:"",t2:me.perk&&/^#[0-9a-f]{6}$/i.test(q.t2||"")?q.t2:"",fx:me.perk&&["shine","aurora","glow","gold"].includes(q.fx)?q.fx:"",bp:me.perk&&/^[a-z]{3,10}$/.test(q.bp||"")?q.bp:"",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
   st.secs+=dt;st.last=Date.now();
   if(b.nv)st.visits++;
   if(b.tab&&dt){const t=String(b.tab).slice(0,20);st.tabs[t]=(st.tabs[t]||0)+dt}

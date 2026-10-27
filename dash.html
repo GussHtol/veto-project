@@ -146,6 +146,15 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--a);box-s
 .bg[data-w="6"],.bgp[data-w="6"]{background:radial-gradient(circle at 20% 30%,rgba(244,63,94,.6),transparent 40%),radial-gradient(circle at 80% 20%,rgba(59,130,246,.6),transparent 40%),radial-gradient(circle at 60% 85%,rgba(168,85,247,.6),transparent 45%),#07040f;background-size:170% 170%;animation:lq 12s ease-in-out infinite alternate}
 @keyframes lq{from{background-position:0% 0%}to{background-position:100% 100%}}
 .pc .bn{position:relative;overflow:hidden}.bn2{position:relative;overflow:hidden}.bvd{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.av{overflow:hidden}.avv{width:100%;height:100%;object-fit:cover}
+.ib.gold{color:#fbbf24}.ib.gold:hover{color:#fde68a;background:rgba(251,191,36,.15);border-color:#fbbf24;box-shadow:0 0 18px rgba(251,191,36,.5)}
+#alg,#pvw{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.6);display:grid;place-items:center;padding:20px;backdrop-filter:blur(6px)}
+#adm{position:fixed;right:20px;top:20px;bottom:20px;width:min(400px,calc(100vw - 40px));padding:20px;z-index:22;transform:translateX(125%);transition:transform .5s var(--e);display:flex;flex-direction:column;gap:12px}#adm.on{transform:none}
+#adm h3{display:flex;align-items:center;gap:10px;font-size:18px}#adm h3 button{margin-left:auto;background:0;border:0;cursor:pointer;font-size:18px;color:var(--t)}#adm h3 #adb{margin-left:0;font-size:24px}
+#adl{overflow:auto;flex:1}#adv{display:flex;flex-direction:column;flex:1;min-height:0;gap:12px}#adv .chat{flex:1;max-height:none}
+.ptb{height:110px;border-radius:14px;display:flex;flex-direction:column;justify-content:space-between;padding:10px;border:1px solid var(--l);background:linear-gradient(160deg,#c026d3,#5b21b6)}
+.ptb input[type=color]{width:34px;height:34px;padding:0;border-radius:50%;border:2px solid rgba(255,255,255,.8);background:none;cursor:pointer;box-shadow:none}.ptb input[type=color]:nth-child(2){align-self:flex-end}
+.ptb input::-webkit-color-swatch-wrapper{padding:0}.ptb input::-webkit-color-swatch{border:0;border-radius:50%}
+.pst{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.pst div{padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.05);font-size:15px}.pst small{display:block;color:var(--m);font-size:12px}
 body.noanim *{transition:none!important;animation:none!important}
 </style>
 </head>
@@ -161,7 +170,7 @@ body.noanim *{transition:none!important;animation:none!important}
   </form><canvas id="cv"></canvas></div></div>
 
 <div id="app" class="hide">
-  <nav class="g side"><button class="ib on" data-l="Главная" title="Главная"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button><button class="ib" id="gm" data-l="Сообщения" title="Сообщения"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><i class="bd hide" id="gmb"></i></button><button class="ib" id="gs" data-l="Настройки интерфейса" title="Настройки"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button><button class="ib" id="gp" data-l="Профиль" title="Профиль"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button><button class="ib red" id="out" data-l="Выйти из аккаунта" title="Выйти"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button></nav>
+  <nav class="g side"><button class="ib on" data-l="Главная" title="Главная"><svg viewBox="0 0 24 24"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></button><button class="ib" id="gm" data-l="Сообщения" title="Сообщения"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/></svg><i class="bd hide" id="gmb"></i></button><button class="ib" id="gs" data-l="Настройки интерфейса" title="Настройки"><svg viewBox="0 0 24 24"><path d="M4 7h10M18 7h2M4 17h2M10 17h10"/><circle cx="16" cy="7" r="2"/><circle cx="8" cy="17" r="2"/></svg></button><button class="ib" id="gp" data-l="Профиль" title="Профиль"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg></button><button class="ib red" id="out" data-l="Выйти из аккаунта" title="Выйти"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></svg></button><button class="ib gold" id="gc" data-l="Админ" title="Админ"><svg viewBox="0 0 24 24"><path d="M3 8l4 4 5-7 5 7 4-4-2 11H5z"/></svg><i class="bd hide" id="gcb"></i></button></nav>
   <header><div class="g pill" id="hi"></div><div class="g pill" id="usr"></div></header>
   <section class="hero"><div id="clk"></div><div id="dt"></div><input id="q" placeholder="Поиск в Google или адрес сайта"></section>
   <main class="grid">
@@ -181,6 +190,7 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="lb">Масштаб интерфейса: <span id="zv"></span>%</div><input type="range" id="rz" min="85" max="125" step="5">
 <div class="lb">Обои</div><div class="wps" id="wps"></div>
 <div class="tgr"><button class="tg" id="an"></button><div>Плавные анимации<br><span class="s">Переходы и появление блоков</span></div></div>
+<button class="b ghost" id="snt" style="margin-top:22px">Включить уведомления</button>
 <button class="b ghost" id="rs" style="margin-top:26px">Сбросить настройки</button></aside>
 <aside id="pf" class="g"><h3>Профиль<button id="px">✕</button></h3><div id="ppv"></div>
 <div class="lb">Аватар</div><div class="s" style="margin:-4px 0 8px">Живой аватар и анимированный баннер (GIF, MP4, до 3 МБ) доступны по паролю.</div><div class="row"><button class="b sm" id="pup">Загрузить фото</button><button class="b sm ghost" id="prm" style="margin:0">Убрать</button></div><input type="file" id="pfi" accept="image/*,video/mp4,video/webm" hidden>
@@ -192,19 +202,23 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="lb">Оформление профиля <span class="chip" id="plk" style="margin-left:8px"></span></div>
 <div id="pfxlock" class="row"><input id="pcode" type="password" placeholder="Пароль для оформления"><button class="b sm" id="pun">Открыть</button></div>
 <div id="pfx"><button class="b ghost" id="pdec" style="margin-top:10px">Сменить украшение аватара</button><div class="seg hide" id="pfr"></div>
+<div class="s" style="margin:14px 0 6px">Тема профиля</div><div class="ptb" id="ptb"><input type="color" id="pt1" value="#c026d3"><input type="color" id="pt2" value="#5b21b6"></div><button class="b ghost sm" id="ptr" style="margin:8px 0 0">Сбросить цвета</button>
 <div class="s" style="margin:14px 0 6px">Красивый баннер</div><div class="sw" id="pbp"></div>
 <div class="s" style="margin:14px 0 6px">Эффект карточки</div><div class="seg" id="pfxs"></div></div>
 <button class="b" id="pcs" style="margin-top:18px">Сохранить профиль</button>
 <div class="lb">Ключ для друзей</div><div class="kb" id="pk">…</div><button class="b ghost" id="pcp">Копировать ключ</button></aside>
 <aside id="dm" class="g"><h3><button id="dmb" class="hide">‹</button><span id="dmh" style="display:flex;align-items:center;gap:10px">Сообщения</span><button id="dx">✕</button></h3><div id="dml"></div><div id="dmv" class="hide"><div class="chat" id="dmc"></div><div class="row"><button class="b sm ghost" id="dma" style="margin:0" title="Фото или GIF">＋</button><input id="dmi" placeholder="Сообщение" maxlength="500" autocomplete="off"><button class="b sm" id="dms">→</button></div><input type="file" id="dmf" accept="image/*" hidden></div></aside>
 <div id="dec" class="hide"><div class="g dbox"><h3 style="font-size:20px">Украшение аватара</h3><div id="dlk" class="row"><input id="dcode" type="password" placeholder="Пароль для украшений"><button class="b sm" id="dun">Открыть</button></div><div class="dwrap"><div class="dgrid" id="dgr"></div><div class="dpv"><div id="dbig"></div><div id="dsm"></div></div></div><div class="row" style="justify-content:flex-end"><button class="b ghost sm" id="dcn" style="margin:0">Отмена</button><button class="b sm" id="dap">Применить</button></div></div></div>
+<aside id="adm" class="g"><h3><button id="adb" class="hide">‹</button><span id="adh">Заявки на ключ</span><button id="adx">✕</button></h3><button class="b sm ghost" id="ant" style="margin:0;align-self:flex-start">Уведомления</button><div id="adl"></div><div id="adv" class="hide"><div class="chat" id="adc"></div><div class="row"><input id="adi" placeholder="Сообщение от имени бота" autocomplete="off"><button class="b sm" id="ads">→</button></div><div class="row" style="flex-wrap:wrap"><button class="b sm" id="aok" style="margin:0">Одобрить и выдать ключ</button><button class="b sm ghost" id="ano" style="margin:0">Отклонить</button><button class="b sm ghost" id="adel" style="margin:0;color:#ff7a7a">Удалить</button></div></div></aside>
+<div id="alg" class="hide"><div class="g dbox" style="width:min(380px,100%)"><h3 style="font-size:20px">Вход администратора</h3><p class="s">Только для владельца сайта.</p><input id="apw" type="password" placeholder="Пароль администратора"><button class="b" id="ago">Войти</button><button class="b ghost" id="acn" style="margin:0">Отмена</button></div></div>
+<div id="pvw" class="hide"><div class="g dbox" style="width:min(420px,100%)" id="pvb"></div></div>
 <div id="ts"></div>
 <script>
 const $=i=>document.getElementById(i),esc=t=>String(t??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 let PIN=null;
 let TK=localStorage.getItem("tk"),D={n:"",set:{},net:null},mode="log",ks="",tm,st,LOGIN="",N=null,F=null,lt=Date.now(),nv=true,tt;
 async function api(p,b){const r=await fetch("/api/"+p,{method:"POST",body:JSON.stringify(b)});let j={};try{j=await r.json()}catch{}if(!r.ok)throw j;return j}
-const out=()=>{localStorage.removeItem("tk");location.reload()};
+const out=()=>{localStorage.removeItem("tk");sessionStorage.removeItem("adm");location.reload()};
 function save(){clearTimeout(st);st=setTimeout(()=>api("save",{token:TK,data:D}).catch(e=>e.err==="auth"&&out()),700)}
 
 /* ---- вход / регистрация + точечный кот ---- */
@@ -233,7 +247,7 @@ function start(l){
   $("hi").textContent=(h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер")+", "+l;
   LOGIN=l;$("usr").textContent="@"+l;
   $("qp").textContent="«Лучший способ предсказать будущее — создать его.»";
-  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);
+  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();if(ADM)startAdm();
   au.volume=.45;au.play().catch(()=>{});
 }
 function tick(){const d=new Date();$("clk").textContent=d.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});$("dt").textContent=d.toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"})}
@@ -253,14 +267,14 @@ function drawF(){
   if(F.off){el.innerHTML='<span class="s">Сервер недоступен</span>';return}
   const on=t=>Date.now()-t<45000,nm=u=>esc(u.prof&&u.prof.n||u.name),fs=u=>on(u.last)?((u.prof&&u.prof.st)||"on"):"off",ic=u=>av(u.prof,u.prof&&u.prof.n||u.name,34,u.name);
   const bt=(a,k,t,g)=>`<button class="b sm${g?" ghost":""}" style="margin:0" data-a="${a}" data-k="${k}">${t}</button>`;
-  if(F.in&&PIN!==null&&F.in.length>PIN)toast("Новая заявка в друзья");PIN=F.in?F.in.length:0;
+  if(F.in&&PIN!==null&&F.in.length>PIN)notify("Новая заявка в друзья","Откройте кабинет, чтобы ответить");PIN=F.in?F.in.length:0;
   const op=[...el.querySelectorAll("details[open]")].map(d=>d.dataset.id);
   el.innerHTML=F.in.map(u=>`<div class="li">${ic(u)}${nm(u)}<span style="margin-left:auto;display:flex;gap:6px">${bt("acc",u.id,"Принять")}${bt("del",u.id,"✕",1)}</span></div>`).join("")
   +F.out.map(u=>`<div class="li">${ic(u)}${nm(u)}<small>ждёт ответа</small>${bt("del",u.id,"✕",1)}</div>`).join("")
   +(F.f.length?F.f.map(u=>{const t=Object.entries(u.tabs||{}).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>esc(TN[k]||k)+": "+fm(v)).join(", ");
-    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${nm(u)}<small style="color:${ST[fs(u)][1]}">${ST[fs(u)][0]}</small>${F.un&&F.un[u.id]?`<span class="chip" style="margin-left:0">${F.un[u.id]}</span>`:""}</summary>${u.prof&&u.prof.bv?(u.prof.bm?`<div class="bn2"><video class="bvd" src="/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}" autoplay loop muted playsinline></video></div>`:`<div class="bn2" style="background-image:url('/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}')"></div>`):""}<div class="s">${u.prof&&u.prof.ab?esc(u.prof.ab)+"<br><br>":""}Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div><div style="display:flex;gap:8px;margin:8px 0 0 42px">${bt("del",u.id,"Удалить из друзей",1)}</div></details>`}).join(""):'<span class="s">Друзей пока нет</span>');
+    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${nm(u)}<small style="color:${ST[fs(u)][1]}">${ST[fs(u)][0]}</small>${F.un&&F.un[u.id]?`<span class="chip" style="margin-left:0">${F.un[u.id]}</span>`:""}</summary>${u.prof&&u.prof.bv?(u.prof.bm?`<div class="bn2"><video class="bvd" src="/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}" autoplay loop muted playsinline></video></div>`:`<div class="bn2" style="background-image:url('/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}')"></div>`):""}<div class="s">${u.prof&&u.prof.ab?esc(u.prof.ab)+"<br><br>":""}Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div><div style="display:flex;gap:8px;margin:8px 0 0 42px">${bt("pf",u.id,"Профиль")}${bt("del",u.id,"Удалить из друзей",1)}</div></details>`}).join(""):'<span class="s">Друзей пока нет</span>');
 }
-$("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();if(b.dataset.a==="dm"){const f=F.f.find(x=>x.id===b.dataset.k);if(f)dmOpen(f);return}const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)};
+$("fr").onclick=async e=>{const a2=e.target.closest(".afw");if(a2){const d=a2.closest("[data-id]"),f=d&&F.f.find(x=>x.id===d.dataset.id);if(f){e.preventDefault();return pview(f)}}const b=e.target.closest("button");if(!b)return;e.preventDefault();if(b.dataset.a==="pf"){const f=F.f.find(x=>x.id===b.dataset.k);if(f)pview(f);return}if(b.dataset.a==="dm"){const f=F.f.find(x=>x.id===b.dataset.k);if(f)dmOpen(f);return}const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)};
 $("fa").onclick=async()=>{const v=$("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Сервер недоступен");$("fk").value=""};
 $("fk").onkeydown=e=>{if(e.key==="Enter")$("fa").click()};
 
@@ -310,7 +324,7 @@ $("wps").innerHTML=WN.map((n,i)=>`<button data-w="${i}"><div class="bgp" data-w=
 $("wps").onclick=e=>{const b=e.target.closest("button");if(b){SET.wp=+b.dataset.w;ap();sv()}};
 $("an").onclick=()=>{SET.an=SET.an?0:1;ap();sv()};
 $("rs").onclick=()=>{SET={a:"#ff6b5e",r:18,z:100,an:1,wp:0};ap();sv()};
-$("gs").onclick=()=>{$("dm").classList.remove("on");$("pf").classList.remove("on");$("set").classList.toggle("on")};$("sx").onclick=()=>$("set").classList.remove("on");
+$("gs").onclick=()=>{$("dm").classList.remove("on");$("adm").classList.remove("on");$("pf").classList.remove("on");$("set").classList.toggle("on")};$("sx").onclick=()=>$("set").classList.remove("on");
 ap();
 
 /* ---- профиль ---- */
@@ -319,11 +333,12 @@ let P={n:"",ab:"",st:"on",bn:"#ff6b5e",av:"",fr:"",fx:"",bp:""},PERK=false;
 const BP={sunset:"linear-gradient(120deg,#f97316,#ec4899,#6366f1)",ocean:"linear-gradient(120deg,#0ea5e9,#6366f1,#8b5cf6)",neon:"linear-gradient(120deg,#22d3ee,#a855f7,#ec4899)",forest:"linear-gradient(120deg,#16a34a,#065f46,#0e7490)",sakura:"linear-gradient(120deg,#fbcfe8,#f472b6,#a855f7)",night:"linear-gradient(120deg,#0f172a,#312e81,#7c3aed)"};
 const FR=[["","Без рамки"],["gold","Золото"],["neon","Неон"],["fire","Огонь"],["ice","Лёд"],["sakura","Сакура"]],FX=[["","Нет"],["shine","Блеск"],["aurora","Аврора"],["glow","Свечение"],["gold","Золото"]];
 const av=(p,name,z,lg)=>`<span class="afw${p&&p.fr?" fr-"+esc(p.fr):""}" style="width:${z}px;height:${z}px"><span class="av" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.42)}px;${p&&p.ag&&lg&&!p.am?`background-image:url('/api/banner?u=${encodeURIComponent(lg)}&k=av&v=${p.ag}')`:p&&p.av?`background-image:url('${p.av}')`:`background:${esc(p&&p.bn||"#ff6b5e")}`}">${p&&p.ag&&lg&&p.am?`<video class="avv" src="/api/banner?u=${encodeURIComponent(lg)}&k=av&v=${p.ag}" autoplay loop muted playsinline></video>`:p&&(p.av||(p.ag&&lg))?"":esc((name||"?")[0]).toUpperCase()}</span></span>`;
-function pcard(p,name,login,k){const s=ST[k];return `<div class="pc${p.fx?" fx-"+esc(p.fx):""}"><div class="bn" style="background:${p.bp&&BP[p.bp]?BP[p.bp]:esc(p.bn||"#ff6b5e")}${p.bv&&!p.bm?`;background-image:url('/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}');background-size:cover;background-position:center`:""}">${p.bv&&p.bm?`<video class="bvd" src="/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}" autoplay loop muted playsinline></video>`:""}</div><div class="ah">${av(p,name,68,login)}<i class="sd" style="background:${s[1]}"></i></div><div class="pb2"><b>${esc(name)}</b><span class="s">@${esc(login)} · ${s[0]}</span>${p.ab?`<p>${esc(p.ab)}</p>`:""}</div></div>`}
+function pcard(p,name,login,k){const s=ST[k];return `<div class="pc${p.fx?" fx-"+esc(p.fx):""}"${p.t1&&p.t2?` style="background:linear-gradient(160deg,${esc(p.t1)},${esc(p.t2)})"`:""}><div class="bn" style="background:${p.bp&&BP[p.bp]?BP[p.bp]:esc(p.bn||"#ff6b5e")}${p.bv&&!p.bm?`;background-image:url('/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}');background-size:cover;background-position:center`:""}">${p.bv&&p.bm?`<video class="bvd" src="/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}" autoplay loop muted playsinline></video>`:""}</div><div class="ah">${av(p,name,68,login)}<i class="sd" style="background:${s[1]}"></i></div><div class="pb2"><b>${esc(name)}</b><span class="s">@${esc(login)} · ${s[0]}</span>${p.ab?`<p>${esc(p.ab)}</p>`:""}</div></div>`}
 function rp(){const c=pcard(P,P.n||LOGIN,LOGIN,P.st);$("ppv").innerHTML=c;$("me").innerHTML=c;
   document.querySelectorAll("#pst button").forEach(b=>b.classList.toggle("on",b.dataset.s===P.st));
   document.querySelectorAll("#pbn button").forEach(b=>b.classList.toggle("on",b.dataset.c===P.bn));
   [["#pfr","fr"],["#pfxs","fx"],["#pbp","bp"]].forEach(([q,k])=>document.querySelectorAll(q+" button").forEach(b=>b.classList.toggle("on",b.dataset.k===(P[k]||""))));
+  $("pt1").value=P.t1||"#c026d3";$("pt2").value=P.t2||"#5b21b6";$("ptb").style.background=`linear-gradient(160deg,${P.t1||"#c026d3"},${P.t2||"#5b21b6"})`;
   $("pfx").classList.toggle("lock",!PERK);$("pfxlock").classList.toggle("hide",PERK);$("plk").textContent=PERK?"открыто":"по паролю"}
 function pcfg(){Object.assign(P,D.prof||{});$("pnm").value=P.n||"";$("pab").value=P.ab||"";rp()}
 function ps(){D.prof={...P};save();rp()}
@@ -352,7 +367,7 @@ $("pnm").oninput=e=>{P.n=e.target.value;ps()};$("pab").oninput=e=>{P.ab=e.target
 function fit(f,cb){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=100;const m=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,100,100);cb(c.toDataURL("image/jpeg",.8))};i.src=r.result};r.readAsDataURL(f)}
 $("pup").onclick=()=>$("pfi").click();$("pfi").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.type==="image/gif"||f.type.startsWith("video/"))return upGif(f,"av");if(P.ag){P.ag=0;api("bnup",{token:TK,data:"",kind:"av"}).catch(()=>{})}fit(f,u=>{P.av=u;ps()})};
 $("prm").onclick=()=>{P.av="";if(P.ag){P.ag=0;api("bnup",{token:TK,data:"",kind:"av"}).catch(()=>{})}ps()};
-$("gp").onclick=()=>{$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.toggle("on")};$("px").onclick=()=>$("pf").classList.remove("on");
+$("gp").onclick=()=>{$("dm").classList.remove("on");$("adm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.toggle("on")};$("px").onclick=()=>$("pf").classList.remove("on");
 async function copy(t){try{await navigator.clipboard.writeText(t);return 1}catch{}
   try{const a=document.createElement("textarea");a.value=t;a.style.cssText="position:fixed;opacity:0";document.body.appendChild(a);a.select();const ok=document.execCommand("copy");a.remove();return ok}catch{return 0}}
 async function cpk(){if(!N)await sync();if(!N)return toast("Сервер недоступен");toast(await copy(fkey())?"Ключ скопирован":"Не вышло: выделите ключ и нажмите Ctrl+C")}
@@ -370,7 +385,7 @@ $("brm").onclick=async()=>{try{await api("bnup",{token:TK,data:""});P.bv=0;ps()}
 /* ---- сообщения ---- */
 let DM=null,dmt;
 const dmtot=()=>Object.values((F&&F.un)||{}).reduce((a,b)=>a+b,0);
-function dmBadge(){$("gmb").classList.toggle("hide",!dmtot());if($("dm").classList.contains("on")&&!DM)dmList()}
+function dmBadge(){const t=dmtot();if(DMP!==null&&t>DMP)notify("Новое сообщение","Непрочитанных: "+t);DMP=t;$("gmb").classList.toggle("hide",!t);if($("dm").classList.contains("on")&&!DM)dmList()}
 function dmList(){const f=(F&&F.f)||[];
   $("dml").innerHTML=f.length?f.map(u=>{const n=u.prof&&u.prof.n||u.name,k=(F.un||{})[u.id],sk=Date.now()-u.last<45000?((u.prof&&u.prof.st)||"on"):"off";
     return `<div class="li" data-id="${u.id}" style="cursor:pointer">${av(u.prof,n,38,u.name)}<span class="tt">${esc(n)}</span>${k?`<span class="chip">${k}</span>`:`<small style="color:${ST[sk][1]}">${ST[sk][0]}</small>`}</div>`}).join(""):'<span class="s">Добавьте друзей, чтобы писать им.</span>'}
@@ -380,10 +395,10 @@ async function dmLoad(send,img){if(!DM||!N)return;
   try{const r=await api("dm",{...N,with:DM.id,text:send,img}),c=$("dmc"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
     c.innerHTML=r.ms.map(m=>`<div class="mg${m.f===N.id?" me":""}">${m.im?`<img class="dmi" src="/api/img?i=${m.im}">`:""}${esc(m.t||"")}<small>${new Date(m.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small></div>`).join("")||'<span class="s">Сообщений пока нет. Напишите первым.</span>';
     if(low||send||img)c.scrollTop=c.scrollHeight}catch(e){toast(e.err||"Нет связи")}}
-$("gm").onclick=()=>{$("set").classList.remove("on");$("pf").classList.remove("on");if($("dm").classList.toggle("on"))dmBack();else{clearInterval(dmt);DM=null}};
+$("gm").onclick=()=>{$("adm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.remove("on");if($("dm").classList.toggle("on"))dmBack();else{clearInterval(dmt);DM=null}};
 $("dx").onclick=()=>{$("dm").classList.remove("on");clearInterval(dmt);DM=null};
 $("dmb").onclick=dmBack;
-$("dml").onclick=e=>{const r=e.target.closest(".li");if(r){const f=F.f.find(x=>x.id===r.dataset.id);if(f)dmOpen(f)}};
+$("dml").onclick=e=>{const r=e.target.closest(".li");if(r){const f=F.f.find(x=>x.id===r.dataset.id);if(f)e.target.closest(".afw")?pview(f):dmOpen(f)}};
 $("dms").onclick=()=>{const v=$("dmi").value.trim();if(v){$("dmi").value="";dmLoad(v)}};$("dmi").onkeydown=e=>{if(e.key==="Enter")$("dms").click()};
 $("dma").onclick=()=>$("dmf").click();
 $("dmf").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.size>2000000)return toast("Файл больше 2 МБ");const r=new FileReader();r.onload=()=>dmLoad("",r.result);r.readAsDataURL(f)};
@@ -408,6 +423,46 @@ $("spt").onclick=async()=>{const b=$("spt");b.disabled=true;b.textContent="Из�
     for(;;){const {done,value}=await rd.read();if(done)break;n+=value.length;if(n>2000000){rd.cancel();break}}
     $("spr").textContent="↓ "+(n*8/((performance.now()-t)/1000)/1e6).toFixed(1)+" Мбит/с"}catch{$("spr").textContent="Ошибка измерения"}
   b.disabled=false;b.textContent="Проверить скорость"};
+
+/* ---- профиль друга, тема, уведомления, админ ---- */
+let DMP=null,ADM=sessionStorage.getItem("adm")||null,adt,aKnown=null,aUn=0,acur=null;
+const tc=()=>{P.t1=$("pt1").value;P.t2=$("pt2").value;ps()};$("pt1").oninput=tc;$("pt2").oninput=tc;$("ptr").onclick=()=>{P.t1=P.t2="";ps()};
+function pview(f){const p=f.prof||{},n=p.n||f.name,sk=Date.now()-f.last<45000?(p.st||"on"):"off";
+  const t=Object.entries(f.tabs||{}).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>esc(TN[k]||k)+": "+fm(v)).join(", ");
+  $("pvb").innerHTML=pcard(p,n,f.name,sk)+`<div class="pst"><div><small>На сайте</small>${fm(f.secs)}</div><div><small>Визитов</small>${f.visits}</div><div><small>Был(а) в сети</small>${sk==="off"?new Date(f.last).toLocaleString("ru",{day:"numeric",month:"short",hour:"2-digit",minute:"2-digit"}):"сейчас"}</div></div>${t?`<p class="s" style="margin-top:10px">Разделы: ${t}</p>`:""}<div class="row" style="margin-top:14px"><button class="b" id="pvm" style="flex:1">Написать</button><button class="b ghost" id="pvc" style="flex:1;margin:0">Закрыть</button></div>`;
+  $("pvw").classList.remove("hide");
+  $("pvm").onclick=()=>{$("pvw").classList.add("hide");$("set").classList.remove("on");$("pf").classList.remove("on");$("adm").classList.remove("on");$("dm").classList.add("on");dmOpen(f)};
+  $("pvc").onclick=()=>$("pvw").classList.add("hide")}
+$("pvw").onclick=e=>{if(e.target.id==="pvw")$("pvw").classList.add("hide")};
+$("dmh").onclick=()=>{if(DM)pview(DM)};
+function notify(t,b){toast(t);try{if("Notification" in window&&Notification.permission==="granted")new Notification(t,{body:b,icon:"cover.jpg"})}catch{}}
+function anRefresh(){const g="Notification" in window&&Notification.permission==="granted";$("ant").textContent=g?"Уведомления: включены":"Включить уведомления";$("snt").textContent=g?"Уведомления включены":"Включить уведомления"}
+async function askNotif(){if(!("Notification" in window))return toast("Браузер не поддерживает уведомления");
+  const p=Notification.permission==="denied"?"denied":await Notification.requestPermission();anRefresh();
+  if(p==="granted")notify("Уведомления включены","Теперь оповещения будут приходить");else toast("Уведомления запрещены: нажмите на замок рядом с адресом сайта и разрешите их")}
+$("ant").onclick=askNotif;$("snt").onclick=askNotif;
+const adm=async b=>{const r=await fetch("/api/adm",{method:"POST",body:JSON.stringify({pw:ADM,...b})});if(!r.ok)throw r.status;return r.json()};
+function aList(l){$("adl").innerHTML=l.length?l.map(x=>`<div class="li" data-v="${x.vid}" style="cursor:pointer"><i>${esc((x.name||"?")[0]).toUpperCase()}</i><div class="tt"><b>${esc(x.name)}</b>${x.unread?` <span class="chip" style="margin-left:0">${x.unread}</span>`:""}<br><small style="margin:0">${esc(x.pre.slice(0,50))}</small></div><span class="chip" style="margin-left:0;${x.status==="ok"?"background:#22c55e":x.status==="no"?"background:#ef4444":""}">${x.status==="ok"?"Выдан":x.status==="no"?"Отклонена":"Ждёт"}</span></div>`).join(""):'<span class="s">Заявок пока нет.</span>'}
+async function aPoll(){try{const {list:l}=await adm({act:"list"}),un=l.reduce((a,x)=>a+(x.unread||0),0),wt=l.filter(x=>x.status==="wait").length;
+    if(aKnown){l.filter(x=>!aKnown.has(x.vid)).forEach(x=>notify("Новая заявка на ключ",x.name));if(un>aUn)notify("Новое сообщение в заявках","Непрочитанных: "+un)}
+    aKnown=new Set(l.map(x=>x.vid));aUn=un;$("gcb").classList.toggle("hide",!(un||wt));
+    if(acur)aView();else if($("adm").classList.contains("on"))aList(l)}
+  catch(e){if(e===401){ADM=null;sessionStorage.removeItem("adm");clearInterval(adt);$("gcb").classList.add("hide")}}}
+async function aView(act,text){try{const r=await adm({act:act||"get",vid:acur,text});if(r.gone){acur=null;toast("Удалено");return aBack()}
+  $("adh").textContent=r.name+" · "+({ok:"выдан",no:"отклонена",wait:"ждёт"}[r.status]||"");
+  const c=$("adc"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
+  c.innerHTML=r.msgs.map(m=>`<div class="mg${m.f==="b"?" me":""}"><small>${m.f==="b"?"Вы (бот)":esc(r.name)} ${new Date(m.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(m.t)}</div>`).join("");if(low||act)c.scrollTop=c.scrollHeight}catch{}}
+function aOpen(v){acur=v;$("adl").classList.add("hide");$("adv").classList.remove("hide");$("adb").classList.remove("hide");$("adc").innerHTML="";aView()}
+function aBack(){acur=null;$("adv").classList.add("hide");$("adl").classList.remove("hide");$("adb").classList.add("hide");$("adh").textContent="Заявки на ключ";aPoll()}
+function startAdm(open){clearInterval(adt);aKnown=null;aPoll();adt=setInterval(aPoll,10000);anRefresh();
+  if(open){$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.remove("on");$("adm").classList.add("on");if("Notification" in window&&Notification.permission==="default")Notification.requestPermission().then(anRefresh)}}
+$("gc").onclick=()=>{if(!ADM)return $("alg").classList.remove("hide");if($("adm").classList.toggle("on")){$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.remove("on");aBack()}};
+$("ago").onclick=async()=>{const pw=$("apw").value;if(!pw)return;ADM=pw;try{await adm({act:"list"});sessionStorage.setItem("adm",pw);$("alg").classList.add("hide");$("apw").value="";startAdm(true)}catch(e){ADM=null;toast(e===401?"Неверный пароль":"Сервер недоступен")}};
+$("apw").onkeydown=e=>{if(e.key==="Enter")$("ago").click()};$("acn").onclick=()=>$("alg").classList.add("hide");
+$("adl").onclick=e=>{const r=e.target.closest(".li");if(r)aOpen(r.dataset.v)};$("adb").onclick=aBack;$("adx").onclick=()=>{$("adm").classList.remove("on")};
+const atx=()=>{const i=$("adi"),v=i.value.trim();i.value="";return v};
+$("ads").onclick=()=>{const v=atx();if(v)aView("send",v)};$("adi").onkeydown=e=>{if(e.key==="Enter")$("ads").click()};
+$("aok").onclick=()=>aView("ok",atx());$("ano").onclick=()=>aView("no",atx());$("adel").onclick=()=>{if(confirm("Удалить заявку и переписку?"))aView("del")};
 
 /* ---- старт ---- */
 if(TK)api("me",{token:TK}).then(r=>{Object.assign(D,r.data);PERK=!!r.perk;start(r.login)}).catch(()=>{localStorage.removeItem("tk");TK=null;showAuth()});else showAuth();
