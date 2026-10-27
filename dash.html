@@ -261,7 +261,7 @@ function drawF(){
 }
 $("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();if(b.dataset.a==="dm"){const f=F.f.find(x=>x.id===b.dataset.k);if(f)dmOpen(f);return}const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)};
 $("fa").onclick=async()=>{const v=$("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Сервер недоступен");$("fk").value=""};
-$("fk").onkeydown=e=>e.key==="Enter"&&$("fa").click();
+$("fk").onkeydown=e=>{if(e.key==="Enter")$("fa").click()};
 
 $("out").onclick=out;
 
@@ -270,7 +270,7 @@ async function key(t,go){
   const el=$("wk");let r;try{r=await api("req",{token:TK,text:t,start:go})}catch(e){if(e.err==="auth")out();return}
   if(r.none){ks="";el.innerHTML='<h3>Ключ доступа</h3><p class="s" style="margin-bottom:16px">Подайте заявку, и бот выдаст вам ключ. Ожидание обычно от 10 минут до часа.</p><button class="b" id="kg">Получить ключ</button>';$("kg").onclick=()=>key(0,1);return}
   if(ks!=="c"){ks="c";el.innerHTML='<h3>Ключ доступа <span class="chip" id="kst"></span></h3><p class="s" id="khn"></p><div class="chat" id="kc"></div><div class="row"><input id="kx" placeholder="Сообщение боту"><button class="b sm" id="ks">→</button></div><a class="b ghost hide" id="ko" href="/">Открыть приложение</a>';
-    $("ks").onclick=()=>{const v=$("kx").value.trim();if(v){$("kx").value="";key(v)}};$("kx").onkeydown=e=>e.key==="Enter"&&$("ks").click()}
+    $("ks").onclick=()=>{const v=$("kx").value.trim();if(v){$("kx").value="";key(v)}};$("kx").onkeydown=e=>{if(e.key==="Enter")$("ks").click()}}
   const c=$("kc"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
   c.innerHTML=r.msgs.map(m=>`<div class="mg${m.f==="v"?" me":""}"><small>${m.f==="b"?"Бот":"Вы"} ${new Date(m.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(m.t)}</div>`).join("");
   if(low||t)c.scrollTop=c.scrollHeight;
@@ -383,7 +383,7 @@ $("gm").onclick=()=>{$("set").classList.remove("on");$("pf").classList.remove("o
 $("dx").onclick=()=>{$("dm").classList.remove("on");clearInterval(dmt);DM=null};
 $("dmb").onclick=dmBack;
 $("dml").onclick=e=>{const r=e.target.closest(".li");if(r){const f=F.f.find(x=>x.id===r.dataset.id);if(f)dmOpen(f)}};
-$("dms").onclick=()=>{const v=$("dmi").value.trim();if(v){$("dmi").value="";dmLoad(v)}};$("dmi").onkeydown=e=>e.key==="Enter"&&$("dms").click();
+$("dms").onclick=()=>{const v=$("dmi").value.trim();if(v){$("dmi").value="";dmLoad(v)}};$("dmi").onkeydown=e=>{if(e.key==="Enter")$("dms").click()};
 $("dma").onclick=()=>$("dmf").click();
 $("dmf").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.size>2000000)return toast("Файл больше 2 МБ");const r=new FileReader();r.onload=()=>dmLoad("",r.result);r.readAsDataURL(f)};
 
