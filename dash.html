@@ -282,7 +282,7 @@ function start(l){
   $("hi").textContent=(h<5?"Доброй ночи":h<12?"Доброе утро":h<18?"Добрый день":"Добрый вечер")+", "+l;
   LOGIN=l;$("usr").textContent="@"+l;
   $("qp").textContent="«Лучший способ предсказать будущее — создать его.»";
-  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();loadTracks();if(ADM)startAdm();
+  tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);setInterval(poll,5000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();loadTracks();if(ADM)startAdm();
   au.volume=.45;au.play().catch(()=>{});
 }
 function tick(){const d=new Date();$("clk").textContent=d.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});$("dt").textContent=d.toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"})}
@@ -297,6 +297,8 @@ async function sync(act,key){
   try{if(!N){if(D.net)N=D.net;else{N=await api("register",{});D.net=N;save()}}
     F=await api("sync",{...N,name:LOGIN,prof:P,dt,tab:"Кабинет",nv,act,key});nv=false}catch(e){F=F||{off:1}}
   drawF();dmBadge();return F}
+let PS="";
+async function poll(){if(!N)return;try{const r=await api("poll",N),s=JSON.stringify([r.in,r.f,r.un]);const ch=PS&&s!==PS;PS=s;if(ch)await sync()}catch{}}
 function drawF(){
   const el=$("fr");if(!F)return;$("pk").textContent=fkey();
   if(F.off){el.innerHTML='<span class="s">Сервер недоступен</span>';return}

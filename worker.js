@@ -203,6 +203,11 @@ export default{async fetch(req,env){
     if(b.act==="no"){r.status="no";add(r,"b",b.text||"Заявка отклонена.")}
     r.unread=0;await rp(v,r);return J({vid:v,...th(r)});
   }
+  if(u.pathname==="/api/poll"){
+    const i=hx(b.id),m2=i&&await get(i);
+    if(!m2||m2.h!==await sha(String(b.sec)))return J({err:"auth"},401);
+    return J({in:m2.in.length,f:m2.f.length,un:JSON.parse(await env.KV.get("un:"+i)||"{}")});
+  }
   if(u.pathname!=="/api/sync")return J({err:"404"},404);
 
   const id=String(b.id||""),me=await get(id);
