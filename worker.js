@@ -8,8 +8,14 @@ const PERK="533694c18d4f9795acb6e5d2b226d0de1f19b89855ff251f8b4ea5614611899b";
 export default{async fetch(req,env){
   const u=new URL(req.url);
   if(!u.pathname.startsWith("/api/"))return env.ASSETS.fetch(req);
+  if(u.pathname==="/api/ping")return J({t:Date.now()});
+  if(u.pathname==="/api/img"&&req.method==="GET"){
+    const s=await env.KV.get("im:"+String(u.searchParams.get("i")||"").replace(/[^0-9a-f]/g,"")),m=s&&/^data:(image\/(?:gif|png|jpeg|webp));base64,(.+)$/.exec(s);
+    if(!m)return new Response("",{status:404});
+    return new Response(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)),{headers:{"content-type":m[1],"cache-control":"public,max-age=31536000"}});
+  }
   if(u.pathname==="/api/banner"&&req.method==="GET"){
-    const s=await env.KV.get("bn:"+String(u.searchParams.get("u")||"").toLowerCase().trim());
+    const s=await env.KV.get((u.searchParams.get("k")==="av"?"av:":"bn:")+String(u.searchParams.get("u")||"").toLowerCase().trim());
     const m=s&&/^data:(image\/(?:gif|png|jpeg|webp));base64,(.+)$/.exec(s);
     if(!m)return new Response("",{status:404});
     return new Response(Uint8Array.from(atob(m[2]),c=>c.charCodeAt(0)),{headers:{"content-type":m[1],"cache-control":"public,max-age=3600"}});
@@ -50,10 +56,12 @@ export default{async fetch(req,env){
   }
   if(u.pathname==="/api/bnup"){
     const m=await who();if(!m)return J({err:"auth"},401);
-    const d=String(b.data||"");
-    if(!d){await env.KV.delete("bn:"+m.l);return J({ok:1})}
+    const d=String(b.data||""),kp=b.kind==="av"?"av:":"bn:";
+    if(!d){await env.KV.delete(kp+m.l);return J({ok:1})}
     if(!/^data:image\/(gif|png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(d)||d.length>2900000)return J({err:"Файл слишком большой (до 2 МБ) или неверный формат"},400);
-    await env.KV.put("bn:"+m.l,d);return J({ok:1});
+    if(/^data:image\/gif/.test(d)&&!m.a.perk)return J({err:"GIF только по паролю"},403);
+    if(kp==="av:"&&d.length>2000000)return J({err:"Аватар до 1,5 МБ"},400);
+    await env.KV.put(kp+m.l,d);return J({ok:1});
   }
   const hx=x=>String(x||"").toLowerCase().replace(/[^0-9a-f]/g,"");
   if(u.pathname==="/api/unlock"){
@@ -67,12 +75,14 @@ export default{async fetch(req,env){
   if(u.pathname==="/api/dm"){
     const i=hx(b.id),me2=i&&await get(i);
     if(!me2||me2.h!==await sha(String(b.sec)))return J({err:"auth"},401);
-    const o=hx(b.with);
-    if(!me2.f.includes(o))return J({err:"Вы не друзья"},403);
+    const o=hx(b.with),pe=o&&await get(o);
+    if(!pe||!(me2.f.includes(o)||pe.f.includes(i)))return J({err:"Вы не друзья"},403);
     const key="m:"+[i,o].sort().join(":");
     let ms=JSON.parse(await env.KV.get(key)||"[]");
-    const t=String(b.text||"").trim().slice(0,500);
-    if(t){ms.push({f:i,t,ts:Date.now()});ms=ms.slice(-150);await env.KV.put(key,JSON.stringify(ms));
+    const t=String(b.text||"").trim().slice(0,500),img=String(b.img||"");
+    let im="";
+    if(img){if(!/^data:image\/(gif|png|jpeg|webp);base64,[A-Za-z0-9+\/=]+$/.test(img)||img.length>2900000)return J({err:"Неверный файл (до 2 МБ)"},400);im=rnd(12);await env.KV.put("im:"+im,img)}
+    if(t||im){ms.push({f:i,t,im,ts:Date.now()});ms=ms.slice(-150);await env.KV.put(key,JSON.stringify(ms));
       const un=JSON.parse(await env.KV.get("un:"+o)||"{}");un[i]=(un[i]||0)+1;await env.KV.put("un:"+o,JSON.stringify(un))}
     const mine=JSON.parse(await env.KV.get("un:"+i)||"{}");
     if(mine[o]){mine[o]=0;await env.KV.put("un:"+i,JSON.stringify(mine))}
@@ -117,12 +127,13 @@ export default{async fetch(req,env){
   if(!me||me.h!==await sha(String(b.sec)))return J({err:"auth"},401);
 
   // статистика самого пользователя
+  const st=JSON.parse(await env.KV.get("s:"+id)||"null")||{name:me.name,secs:me.secs||0,visits:me.visits||0,last:me.last||0,tabs:me.tabs||{},prof:me.prof};
   const dt=Math.max(0,Math.min(120,+b.dt||0));
-  me.name=String(b.name||me.name).slice(0,40);
-  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");me.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,fr:me.perk&&["gold","neon","fire","ice","sakura"].includes(q.fr)?q.fr:"",fx:me.perk&&["shine","aurora","glow","gold"].includes(q.fx)?q.fx:"",bp:me.perk&&/^[a-z]{3,10}$/.test(q.bp||"")?q.bp:"",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
-  me.secs+=dt;me.last=Date.now();
-  if(b.nv)me.visits++;
-  if(b.tab&&dt){const t=String(b.tab).slice(0,20);me.tabs[t]=(me.tabs[t]||0)+dt}
+  st.name=String(b.name||st.name||me.name).slice(0,40);
+  if(b.prof&&typeof b.prof==="object"){const q=b.prof,av=String(q.av||"");st.prof={n:String(q.n||"").slice(0,32),ab:String(q.ab||"").slice(0,200),st:["on","idle","dnd","off"].includes(q.st)?q.st:"on",bn:/^#[0-9a-f]{3,8}$/i.test(q.bn)?q.bn:"#ff6b5e",bv:Math.floor(Number(q.bv))||0,fr:me.perk&&/^[a-z]{3,10}$/.test(q.fr||"")?q.fr:"",ag:me.perk?Math.floor(Number(q.ag))||0:0,fx:me.perk&&["shine","aurora","glow","gold"].includes(q.fx)?q.fx:"",bp:me.perk&&/^[a-z]{3,10}$/.test(q.bp||"")?q.bp:"",av:/^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(av)&&av.length<20000?av:""}}
+  st.secs+=dt;st.last=Date.now();
+  if(b.nv)st.visits++;
+  if(b.tab&&dt){const t=String(b.tab).slice(0,20);st.tabs[t]=(st.tabs[t]||0)+dt}
 
   // действия с друзьями
   const k=String(b.key||"").toLowerCase().replace(/[^0-9a-f]/g,"");
@@ -141,9 +152,10 @@ export default{async fetch(req,env){
     if(t){t.f=cut(t.f,id);t.in=cut(t.in,id);t.out=cut(t.out,id);await put(k,t)}
     msg="Готово";
   }
-  await put(id,me);
+  if(b.act)await put(id,me);
+  await env.KV.put("s:"+id,JSON.stringify(st));
 
-  const pub=async(x,full)=>{const o=await get(x);return o?(full?{id:x,name:o.name,prof:o.prof,secs:o.secs,visits:o.visits,last:o.last,tabs:o.tabs}:{id:x,name:o.name,prof:o.prof}):null};
+  const pub=async(x,full)=>{const o=await get(x);if(!o)return null;const s2=JSON.parse(await env.KV.get("s:"+x)||"null")||o;return full?{id:x,name:s2.name,prof:s2.prof,secs:s2.secs,visits:s2.visits,last:s2.last,tabs:s2.tabs}:{id:x,name:s2.name,prof:s2.prof}};
   const all=async(a,f)=>(await Promise.all(a.map(x=>pub(x,f)))).filter(Boolean);
   return J({f:await all(me.f,1),in:await all(me.in),out:await all(me.out),msg,un:JSON.parse(await env.KV.get("un:"+id)||"{}")});
 }};
