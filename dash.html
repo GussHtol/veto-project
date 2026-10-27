@@ -145,6 +145,7 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--a);box-s
 @keyframes rn{from{background-position:0 0,0 0,0 0}to{background-position:-30px 200px,-50px 340px,0 0}}
 .bg[data-w="6"],.bgp[data-w="6"]{background:radial-gradient(circle at 20% 30%,rgba(244,63,94,.6),transparent 40%),radial-gradient(circle at 80% 20%,rgba(59,130,246,.6),transparent 40%),radial-gradient(circle at 60% 85%,rgba(168,85,247,.6),transparent 45%),#07040f;background-size:170% 170%;animation:lq 12s ease-in-out infinite alternate}
 @keyframes lq{from{background-position:0% 0%}to{background-position:100% 100%}}
+.pc .bn{position:relative;overflow:hidden}.bn2{position:relative;overflow:hidden}.bvd{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.av{overflow:hidden}.avv{width:100%;height:100%;object-fit:cover}
 body.noanim *{transition:none!important;animation:none!important}
 </style>
 </head>
@@ -182,10 +183,10 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="tgr"><button class="tg" id="an"></button><div>Плавные анимации<br><span class="s">Переходы и появление блоков</span></div></div>
 <button class="b ghost" id="rs" style="margin-top:26px">Сбросить настройки</button></aside>
 <aside id="pf" class="g"><h3>Профиль<button id="px">✕</button></h3><div id="ppv"></div>
-<div class="lb">Аватар</div><div class="s" style="margin:-4px 0 8px">Живой аватар и GIF-баннер доступны по паролю.</div><div class="row"><button class="b sm" id="pup">Загрузить фото</button><button class="b sm ghost" id="prm" style="margin:0">Убрать</button></div><input type="file" id="pfi" accept="image/*" hidden>
+<div class="lb">Аватар</div><div class="s" style="margin:-4px 0 8px">Живой аватар и анимированный баннер (GIF, MP4, до 3 МБ) доступны по паролю.</div><div class="row"><button class="b sm" id="pup">Загрузить фото</button><button class="b sm ghost" id="prm" style="margin:0">Убрать</button></div><input type="file" id="pfi" accept="image/*,video/mp4,video/webm" hidden>
 <div class="lb">Имя</div><input id="pnm" maxlength="32" placeholder="Как вас называть">
 <div class="lb">Статус</div><div class="seg" id="pst"></div>
-<div class="lb">Свой баннер (GIF по паролю)</div><div class="row"><button class="b sm" id="bup">Загрузить баннер</button><button class="b sm ghost" id="brm" style="margin:0">Убрать</button></div><input type="file" id="bfi" accept="image/png,image/jpeg,image/gif,image/webp" hidden>
+<div class="lb">Свой баннер (GIF и видео по паролю)</div><div class="row"><button class="b sm" id="bup">Загрузить баннер</button><button class="b sm ghost" id="brm" style="margin:0">Убрать</button></div><input type="file" id="bfi" accept="image/png,image/jpeg,image/gif,image/webp,video/mp4,video/webm" hidden>
 <div class="lb">Цвет баннера</div><div class="sw" id="pbn"></div>
 <div class="lb">Обо мне</div><textarea id="pab" maxlength="200" placeholder="Расскажите о себе" style="height:90px;resize:none"></textarea>
 <div class="lb">Оформление профиля <span class="chip" id="plk" style="margin-left:8px"></span></div>
@@ -257,7 +258,7 @@ function drawF(){
   el.innerHTML=F.in.map(u=>`<div class="li">${ic(u)}${nm(u)}<span style="margin-left:auto;display:flex;gap:6px">${bt("acc",u.id,"Принять")}${bt("del",u.id,"✕",1)}</span></div>`).join("")
   +F.out.map(u=>`<div class="li">${ic(u)}${nm(u)}<small>ждёт ответа</small>${bt("del",u.id,"✕",1)}</div>`).join("")
   +(F.f.length?F.f.map(u=>{const t=Object.entries(u.tabs||{}).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,v])=>esc(TN[k]||k)+": "+fm(v)).join(", ");
-    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${nm(u)}<small style="color:${ST[fs(u)][1]}">${ST[fs(u)][0]}</small>${F.un&&F.un[u.id]?`<span class="chip" style="margin-left:0">${F.un[u.id]}</span>`:""}</summary>${u.prof&&u.prof.bv?`<div class="bn2" style="background-image:url('/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}')"></div>`:""}<div class="s">${u.prof&&u.prof.ab?esc(u.prof.ab)+"<br><br>":""}Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div><div style="display:flex;gap:8px;margin:8px 0 0 42px">${bt("del",u.id,"Удалить из друзей",1)}</div></details>`}).join(""):'<span class="s">Друзей пока нет</span>');
+    return `<details class="li fd" data-id="${u.id}"${op.includes(u.id)?" open":""}><summary>${ic(u)}${nm(u)}<small style="color:${ST[fs(u)][1]}">${ST[fs(u)][0]}</small>${F.un&&F.un[u.id]?`<span class="chip" style="margin-left:0">${F.un[u.id]}</span>`:""}</summary>${u.prof&&u.prof.bv?(u.prof.bm?`<div class="bn2"><video class="bvd" src="/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}" autoplay loop muted playsinline></video></div>`:`<div class="bn2" style="background-image:url('/api/banner?u=${encodeURIComponent(u.name)}&v=${u.prof.bv}')"></div>`):""}<div class="s">${u.prof&&u.prof.ab?esc(u.prof.ab)+"<br><br>":""}Всего на сайте: ${fm(u.secs)}<br>Визитов: ${u.visits}${t?"<br>Разделы: "+t:""}</div><div style="display:flex;gap:8px;margin:8px 0 0 42px">${bt("del",u.id,"Удалить из друзей",1)}</div></details>`}).join(""):'<span class="s">Друзей пока нет</span>');
 }
 $("fr").onclick=async e=>{const b=e.target.closest("button");if(!b)return;e.preventDefault();if(b.dataset.a==="dm"){const f=F.f.find(x=>x.id===b.dataset.k);if(f)dmOpen(f);return}const r=await sync(b.dataset.a,b.dataset.k);if(r&&r.msg)toast(r.msg)};
 $("fa").onclick=async()=>{const v=$("fk").value.trim();if(!v)return;const r=await sync("add",v);toast(r&&r.msg||"Сервер недоступен");$("fk").value=""};
@@ -317,8 +318,8 @@ const ST={on:["В сети","#22c55e"],idle:["Не активен","#facc15"],dn
 let P={n:"",ab:"",st:"on",bn:"#ff6b5e",av:"",fr:"",fx:"",bp:""},PERK=false;
 const BP={sunset:"linear-gradient(120deg,#f97316,#ec4899,#6366f1)",ocean:"linear-gradient(120deg,#0ea5e9,#6366f1,#8b5cf6)",neon:"linear-gradient(120deg,#22d3ee,#a855f7,#ec4899)",forest:"linear-gradient(120deg,#16a34a,#065f46,#0e7490)",sakura:"linear-gradient(120deg,#fbcfe8,#f472b6,#a855f7)",night:"linear-gradient(120deg,#0f172a,#312e81,#7c3aed)"};
 const FR=[["","Без рамки"],["gold","Золото"],["neon","Неон"],["fire","Огонь"],["ice","Лёд"],["sakura","Сакура"]],FX=[["","Нет"],["shine","Блеск"],["aurora","Аврора"],["glow","Свечение"],["gold","Золото"]];
-const av=(p,name,z,lg)=>`<span class="afw${p&&p.fr?" fr-"+esc(p.fr):""}" style="width:${z}px;height:${z}px"><span class="av" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.42)}px;${p&&p.ag&&lg?`background-image:url('/api/banner?u=${encodeURIComponent(lg)}&k=av&v=${p.ag}')`:p&&p.av?`background-image:url('${p.av}')`:`background:${esc(p&&p.bn||"#ff6b5e")}`}">${p&&(p.av||(p.ag&&lg))?"":esc((name||"?")[0]).toUpperCase()}</span></span>`;
-function pcard(p,name,login,k){const s=ST[k];return `<div class="pc${p.fx?" fx-"+esc(p.fx):""}"><div class="bn" style="background:${p.bp&&BP[p.bp]?BP[p.bp]:esc(p.bn||"#ff6b5e")}${p.bv?`;background-image:url('/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}');background-size:cover;background-position:center`:""}"></div><div class="ah">${av(p,name,68,login)}<i class="sd" style="background:${s[1]}"></i></div><div class="pb2"><b>${esc(name)}</b><span class="s">@${esc(login)} · ${s[0]}</span>${p.ab?`<p>${esc(p.ab)}</p>`:""}</div></div>`}
+const av=(p,name,z,lg)=>`<span class="afw${p&&p.fr?" fr-"+esc(p.fr):""}" style="width:${z}px;height:${z}px"><span class="av" style="width:${z}px;height:${z}px;font-size:${Math.round(z*.42)}px;${p&&p.ag&&lg&&!p.am?`background-image:url('/api/banner?u=${encodeURIComponent(lg)}&k=av&v=${p.ag}')`:p&&p.av?`background-image:url('${p.av}')`:`background:${esc(p&&p.bn||"#ff6b5e")}`}">${p&&p.ag&&lg&&p.am?`<video class="avv" src="/api/banner?u=${encodeURIComponent(lg)}&k=av&v=${p.ag}" autoplay loop muted playsinline></video>`:p&&(p.av||(p.ag&&lg))?"":esc((name||"?")[0]).toUpperCase()}</span></span>`;
+function pcard(p,name,login,k){const s=ST[k];return `<div class="pc${p.fx?" fx-"+esc(p.fx):""}"><div class="bn" style="background:${p.bp&&BP[p.bp]?BP[p.bp]:esc(p.bn||"#ff6b5e")}${p.bv&&!p.bm?`;background-image:url('/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}');background-size:cover;background-position:center`:""}">${p.bv&&p.bm?`<video class="bvd" src="/api/banner?u=${encodeURIComponent(login)}&v=${p.bv}" autoplay loop muted playsinline></video>`:""}</div><div class="ah">${av(p,name,68,login)}<i class="sd" style="background:${s[1]}"></i></div><div class="pb2"><b>${esc(name)}</b><span class="s">@${esc(login)} · ${s[0]}</span>${p.ab?`<p>${esc(p.ab)}</p>`:""}</div></div>`}
 function rp(){const c=pcard(P,P.n||LOGIN,LOGIN,P.st);$("ppv").innerHTML=c;$("me").innerHTML=c;
   document.querySelectorAll("#pst button").forEach(b=>b.classList.toggle("on",b.dataset.s===P.st));
   document.querySelectorAll("#pbn button").forEach(b=>b.classList.toggle("on",b.dataset.c===P.bn));
@@ -332,9 +333,9 @@ $("pfr").innerHTML=FR.map(([k,n])=>`<button data-k="${k}">${n}</button>`).join("
 $("pfxs").innerHTML=FX.map(([k,n])=>`<button data-k="${k}">${n}</button>`).join("");
 $("pbp").innerHTML='<button data-k="" style="--c:#374151" title="Нет"></button>'+Object.entries(BP).map(([k,v])=>`<button data-k="${k}" style="background:${v}" title="${k}"></button>`).join("");
 [["pfr","fr"],["pfxs","fx"],["pbp","bp"]].forEach(([id,k])=>$(id).onclick=e=>{const b=e.target.closest("button");if(b&&PERK){P[k]=b.dataset.k;ps()}});
-async function upGif(f,kind){if(!PERK)return toast("GIF доступен только по паролю");if(f.size>(kind==="av"?1500000:2000000))return toast("Файл слишком большой");
-  const d=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)});
-  try{await api("bnup",{token:TK,data:d,kind});P[kind==="av"?"ag":"bv"]=Date.now();ps();toast("Загружено")}catch(e){toast(e.err||"Не удалось загрузить")}}
+async function upGif(f,kind){if(!PERK)return toast("GIF и видео только по паролю");if(f.size>3000000)return toast("Файл больше 3 МБ");
+  try{const r=await fetch("/api/bup?kind="+kind+"&token="+encodeURIComponent(TK),{method:"POST",headers:{"content-type":f.type},body:f}),j=await r.json().catch(()=>({}));if(!r.ok)throw j;
+    P[kind==="av"?"ag":"bv"]=Date.now();P[kind==="av"?"am":"bm"]=f.type.startsWith("video/")?1:0;ps();toast("Загружено")}catch(e){toast(e.err||"Не удалось загрузить")}}
 async function unlock(c){if(!c)return;if(!N)await sync();if(!N)return toast("Сервер недоступен");
   try{await api("unlock",{token:TK,id:N.id,sec:N.sec,code:c});PERK=true;$("pcode").value="";$("dcode").value="";rp();if(!$("dec").classList.contains("hide"))dRender();toast("Открыто")}catch(e){toast(e.err||"Неверный пароль")}}
 $("pun").onclick=()=>unlock($("pcode").value);$("dun").onclick=()=>unlock($("dcode").value);
@@ -349,7 +350,7 @@ $("pst").onclick=e=>{const b=e.target.closest("button");if(b){P.st=b.dataset.s;p
 $("pbn").onclick=e=>{const b=e.target.closest("button");if(b){P.bn=b.dataset.c;ps()}};
 $("pnm").oninput=e=>{P.n=e.target.value;ps()};$("pab").oninput=e=>{P.ab=e.target.value;ps()};
 function fit(f,cb){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=c.height=100;const m=Math.min(i.width,i.height);c.getContext("2d").drawImage(i,(i.width-m)/2,(i.height-m)/2,m,m,0,0,100,100);cb(c.toDataURL("image/jpeg",.8))};i.src=r.result};r.readAsDataURL(f)}
-$("pup").onclick=()=>$("pfi").click();$("pfi").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.type==="image/gif")return upGif(f,"av");if(P.ag){P.ag=0;api("bnup",{token:TK,data:"",kind:"av"}).catch(()=>{})}fit(f,u=>{P.av=u;ps()})};
+$("pup").onclick=()=>$("pfi").click();$("pfi").onchange=e=>{const f=e.target.files[0];e.target.value="";if(!f)return;if(f.type==="image/gif"||f.type.startsWith("video/"))return upGif(f,"av");if(P.ag){P.ag=0;api("bnup",{token:TK,data:"",kind:"av"}).catch(()=>{})}fit(f,u=>{P.av=u;ps()})};
 $("prm").onclick=()=>{P.av="";if(P.ag){P.ag=0;api("bnup",{token:TK,data:"",kind:"av"}).catch(()=>{})}ps()};
 $("gp").onclick=()=>{$("dm").classList.remove("on");$("set").classList.remove("on");$("pf").classList.toggle("on")};$("px").onclick=()=>$("pf").classList.remove("on");
 async function copy(t){try{await navigator.clipboard.writeText(t);return 1}catch{}
@@ -360,9 +361,9 @@ $("fpv").onclick=async()=>{try{$("fk").value=(await navigator.clipboard.readText
 $("pcs").onclick=async()=>{D.prof={...P};clearTimeout(st);try{await api("save",{token:TK,data:D});await sync();toast("Профиль сохранён")}catch{toast("Не удалось сохранить")}};
 function fitB(f,cb){const r=new FileReader();r.onload=()=>{const i=new Image();i.onload=()=>{const c=document.createElement("canvas");c.width=680;c.height=226;const k=Math.max(680/i.width,226/i.height),w=i.width*k,h=i.height*k;c.getContext("2d").drawImage(i,(680-w)/2,(226-h)/2,w,h);cb(c.toDataURL("image/jpeg",.85))};i.src=r.result};r.readAsDataURL(f)}
 async function bnUp(f){if(!f)return;let d;
-  if(f.type==="image/gif")return upGif(f,"bn");if(0){d=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)})}
+  if(f.type==="image/gif"||f.type.startsWith("video/"))return upGif(f,"bn");if(0){d=await new Promise(r=>{const x=new FileReader();x.onload=()=>r(x.result);x.readAsDataURL(f)})}
   else d=await new Promise(r=>fitB(f,r));
-  try{await api("bnup",{token:TK,data:d});P.bv=Date.now();ps();toast("Баннер загружен")}catch(e){toast(e.err||"Не удалось загрузить")}}
+  try{await api("bnup",{token:TK,data:d});P.bv=Date.now();P.bm=0;ps();toast("Баннер загружен")}catch(e){toast(e.err||"Не удалось загрузить")}}
 $("bup").onclick=()=>$("bfi").click();$("bfi").onchange=e=>{bnUp(e.target.files[0]);e.target.value=""};
 $("brm").onclick=async()=>{try{await api("bnup",{token:TK,data:""});P.bv=0;ps()}catch{}};
 
