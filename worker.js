@@ -168,9 +168,15 @@ export default{async fetch(req,env){
     const day="ai:"+m.l+":"+new Date().toISOString().slice(0,10),n=+(await env.KV.get(day)||0);
     if(n>=25)return J({err:"Лимит на сегодня: 25 сообщений. Приходите завтра."},429);
     const ms=(Array.isArray(b.messages)?b.messages:[]).slice(-10).map(x=>({role:x.role==="assistant"?"assistant":"user",content:String(x.content||"").slice(0,1500)}));
-    try{const r=await env.AI.run("@cf/meta/llama-3.1-8b-instruct",{messages:[{role:"system",content:"Ты дружелюбный помощник на сайте. Отвечай по-русски, кратко и по делу."},...ms],max_tokens:500});
-      await env.KV.put(day,String(n+1),{expirationTtl:90000});return J({reply:String(r.response||"")})}
-    catch(e){return J({err:"Ошибка ИИ, попробуйте позже"},500)}
+    const sys={role:"system",content:"Ты дружелюбный помощник на сайте. Отвечай по-русски, кратко и по делу."};
+    let reply="",why="";
+    for(const md of ["@cf/meta/llama-3.1-8b-instruct-fast","@cf/zai-org/glm-4.7-flash","@cf/google/gemma-4-26b-a4b-it","@cf/meta/llama-3.3-70b-instruct-fp8-fast"]){
+      try{const r=await env.AI.run(md,{messages:[sys,...ms],max_tokens:500});
+        reply=String(r.response||(r.choices&&r.choices[0]&&r.choices[0].message&&r.choices[0].message.content)||"").trim();if(reply)break}
+      catch(e){why=md+": "+String(e&&e.message||e).slice(0,160)}
+    }
+    if(!reply)return J({err:"ИИ не ответил. "+why},500);
+    await env.KV.put(day,String(n+1),{expirationTtl:90000});return J({reply});
   }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));
