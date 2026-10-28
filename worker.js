@@ -151,9 +151,6 @@ export default{async fetch(req,env){
     const m=await who();if(!m)return J({err:"auth"},401);
     const L=m.l,pk=x=>({id:x.id,l:x.l,t:x.t,c:x.c,ts:x.ts,views:x.v.length,likes:x.lk.length,liked:x.lk.includes(L),cm:x.cm.length});
     const id=hx(b.id);
-    if(b.act==="rlist"){const ids=JSON.parse(await env.KV.get("rpt")||"[]").slice(-30),a=(await Promise.all(ids.map(async i=>{const p=JSON.parse(await env.KV.get("p:"+i)||"null");return p&&p.rp.length?{id:i,l:p.l,t:p.t,c:p.c,ts:p.ts,rp:p.rp}:null}))).filter(Boolean);return J({list:a})}
-    if(b.act==="rdel"||b.act==="rok"){const i=String(b.id||"").replace(/[^0-9a-f]/g,""),ids=JSON.parse(await env.KV.get("rpt")||"[]").filter(x=>x!==i);await env.KV.put("rpt",JSON.stringify(ids));
-      if(b.act==="rdel"){await env.KV.delete("p:"+i);await env.KV.delete("pm:"+i)}else{const p=JSON.parse(await env.KV.get("p:"+i)||"null");if(p){p.rp=[];await env.KV.put("p:"+i,JSON.stringify(p))}}return J({ok:1})}
     if(b.act==="list"){const l=await env.KV.list({prefix:"p:",limit:20});const ps=(await Promise.all(l.keys.map(async k=>JSON.parse(await env.KV.get(k.name)||"null")))).filter(Boolean);return J({posts:ps.map(pk)})}
     const p=JSON.parse(await env.KV.get("p:"+id)||"null");if(!p)return J({err:"Публикация не найдена"},404);
     const sv=()=>env.KV.put("p:"+id,JSON.stringify(p));
@@ -201,6 +198,10 @@ export default{async fetch(req,env){
       const a=(await Promise.all(l.keys.map(async k=>{const r=JSON.parse(await env.KV.get(k.name));return{vid:k.name.slice(2),name:r.name,status:r.status,last:r.last,unread:r.unread||0,pre:(r.msgs[r.msgs.length-1]||{}).t||""}}))).sort((x,y)=>y.last-x.last);
       return J({list:a});
     }
+    // модерация жалоб: только администратор
+    if(b.act==="rlist"){const ids=JSON.parse(await env.KV.get("rpt")||"[]").slice(-30),a=(await Promise.all(ids.map(async i=>{const p=JSON.parse(await env.KV.get("p:"+i)||"null");return p&&p.rp.length?{id:i,l:p.l,t:p.t,c:p.c,ts:p.ts,rp:p.rp}:null}))).filter(Boolean);return J({list:a})}
+    if(b.act==="rdel"||b.act==="rok"){const i=String(b.id||"").replace(/[^0-9a-f]/g,""),ids=JSON.parse(await env.KV.get("rpt")||"[]").filter(x=>x!==i);await env.KV.put("rpt",JSON.stringify(ids));
+      if(b.act==="rdel"){await env.KV.delete("p:"+i);await env.KV.delete("pm:"+i)}else{const p=JSON.parse(await env.KV.get("p:"+i)||"null");if(p){p.rp=[];await env.KV.put("p:"+i,JSON.stringify(p))}}return J({ok:1})}
     if(b.act==="tadd"){
       const i=tid(b.id),t=String(b.t||"").trim().slice(0,80);if(!i||!t)return J({err:"bad"},400);
       if(!(await env.KV.list({prefix:"tf:"+i+":a"})).keys.length)return J({err:"Нет аудиофайла"},400);
