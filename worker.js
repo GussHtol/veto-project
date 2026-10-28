@@ -6,6 +6,15 @@ const cut=(a,x)=>a.filter(v=>v!==x);
 const PERK="533694c18d4f9795acb6e5d2b226d0de1f19b89855ff251f8b4ea5614611899b";
 
 const tid=x=>String(x||"").toLowerCase().replace(/[^0-9a-z]/g,"").slice(0,16);
+const pwBad=(p,l)=>{p=String(p||"");if(p.length<8)return"Пароль: минимум 8 символов";if(p.length>128)return"Пароль слишком длинный";
+  if(/^(.)\1+$/.test(p))return"Пароль слишком простой";
+  if([/[a-zа-яё]/,/[A-ZА-ЯЁ]/,/[0-9]/,/[^a-zA-Zа-яА-ЯёЁ0-9]/].filter(r=>r.test(p)).length<2)return"Добавьте цифры, заглавные буквы или символы";
+  if(["password","password1","12345678","123456789","1234567890","qwertyui","qwerty123","qwertyuiop","iloveyou","admin123","11111111","йцукенгш"].includes(p.toLowerCase()))return"Этот пароль слишком распространён";
+  if(l&&p.toLowerCase().includes(l))return"Пароль не должен содержать логин";return""};
+// привязка внешних аккаунтов: нужны секреты воркера GOOGLE_ID/GOOGLE_SECRET, YANDEX_ID/YANDEX_SECRET, VK_ID/VK_SECRET
+const OP={google:{n:"Google",au:"https://accounts.google.com/o/oauth2/v2/auth",tu:"https://oauth2.googleapis.com/token",sc:"openid email profile",ix:"GOOGLE"},
+  yandex:{n:"Яндекс",au:"https://oauth.yandex.ru/authorize",tu:"https://oauth.yandex.ru/token",sc:"",ix:"YANDEX"},
+  vk:{n:"VK",au:"https://oauth.vk.com/authorize",tu:"https://oauth.vk.com/access_token",sc:"email",ix:"VK"}};
 const serve=(by,ty,req,age)=>{const h={"content-type":ty,"cache-control":"public,max-age="+age,"accept-ranges":"bytes"},rg=/bytes=(\d*)-(\d*)/.exec(req.headers.get("range")||"");if(rg){const a=rg[1]?+rg[1]:0,e=rg[2]?Math.min(+rg[2],by.length-1):by.length-1;return new Response(by.slice(a,e+1),{status:206,headers:{...h,"content-range":`bytes ${a}-${e}/${by.length}`}})}return new Response(by,{headers:h})};
 export default{async fetch(req,env){
   const u=new URL(req.url);
@@ -51,6 +60,39 @@ export default{async fetch(req,env){
     await env.KV.put("p:"+id,JSON.stringify({id,l,t:ty.startsWith("video")?"v":"i",c:String(u.searchParams.get("c")||"").slice(0,200),ts:Date.now(),v:[],lk:[],cm:[],rp:[]}));
     return J({ok:1,id});
   }
+  // ---- вход и привязка через Google / Яндекс / VK ----
+  const oc=p=>OP[p]&&env[OP[p].ix+"_ID"]&&env[OP[p].ix+"_SECRET"]?OP[p]:null;
+  if(u.pathname==="/api/oauth/cfg"&&req.method==="GET")return new Response(JSON.stringify({op:Object.keys(OP).filter(oc).map(k=>({k,n:OP[k].n}))}),{headers:{"content-type":"application/json","cache-control":"no-store"}});
+  if(u.pathname.startsWith("/api/oauth/cb/")&&req.method==="GET"){
+    const p=u.pathname.slice(14),P=oc(p),go=(q,h)=>new Response(null,{status:302,headers:{location:"/dash"+(q||"")+(h||""),"cache-control":"no-store"}});
+    const code=String(u.searchParams.get("code")||""),sn=String(u.searchParams.get("state")||"").replace(/[^0-9a-f]/g,""),ss=sn&&JSON.parse(await env.KV.get("os:"+sn)||"null");
+    if(sn)await env.KV.delete("os:"+sn);
+    if(!P||!code||!ss||ss.p!==p)return go("?oerr=1");
+    let pr=null;
+    try{
+      const rd=u.origin+"/api/oauth/cb/"+p,cid=env[P.ix+"_ID"],cs=env[P.ix+"_SECRET"],tr=p==="vk"
+        ?await(await fetch(P.tu+"?"+new URLSearchParams({client_id:cid,client_secret:cs,redirect_uri:rd,code}))).json()
+        :await(await fetch(P.tu,{method:"POST",headers:{"content-type":"application/x-www-form-urlencoded"},body:new URLSearchParams({grant_type:"authorization_code",code,client_id:cid,client_secret:cs,redirect_uri:rd})})).json();
+      if(tr&&tr.access_token){
+        if(p==="vk"){if(tr.user_id)pr={id:String(tr.user_id),n:tr.email||"vk.com/id"+tr.user_id}}
+        else if(p==="google"){const j=await(await fetch("https://openidconnect.googleapis.com/v1/userinfo",{headers:{authorization:"Bearer "+tr.access_token}})).json();if(j.sub)pr={id:String(j.sub),n:j.email||j.name||"Google"}}
+        else{const j=await(await fetch("https://login.yandex.ru/info?format=json",{headers:{authorization:"OAuth "+tr.access_token}})).json();if(j.id)pr={id:String(j.id),n:j.default_email||j.login||"Яндекс"}}
+      }
+    }catch{}
+    if(!pr||!/^[A-Za-z0-9_.-]{1,64}$/.test(pr.id))return go("?oerr=1");
+    const key="o:"+p+":"+pr.id,owner=await env.KV.get(key);
+    if(ss.l){
+      if(owner&&owner!==ss.l)return go("?oerr=2");
+      const a=JSON.parse(await env.KV.get("a:"+ss.l)||"null");if(!a)return go("?oerr=1");
+      const old=a.links&&a.links[p];if(old&&old.id&&old.id!==pr.id)await env.KV.delete("o:"+p+":"+old.id);
+      a.links={...(a.links||{}),[p]:{id:pr.id,n:String(pr.n).slice(0,60)}};
+      await env.KV.put("a:"+ss.l,JSON.stringify(a));await env.KV.put(key,ss.l);
+      return go("?linked="+p);
+    }
+    if(!owner||!(await env.KV.get("a:"+owner)))return go("?oerr=3");
+    const t=rnd(24);await env.KV.put("t:"+t,owner,{expirationTtl:7776000});
+    return go("","#ot="+t);
+  }
   // ---- музыка (загрузка только админом) ----
   if(u.pathname==="/api/tracks"&&req.method==="GET")return new Response(JSON.stringify({list:JSON.parse(await env.KV.get("tracks")||"[]")}),{headers:{"content-type":"application/json","cache-control":"no-store"}});
   if(u.pathname==="/api/tf"&&req.method==="GET"){const k=u.searchParams.get("k")==="c"?"c":"a",r=await env.KV.getWithMetadata("tf:"+tid(u.searchParams.get("i"))+":"+k,"arrayBuffer");if(!r.value)return new Response("",{status:404});return serve(new Uint8Array(r.value),(r.metadata&&r.metadata.t)||"application/octet-stream",req,86400)}
@@ -81,7 +123,7 @@ export default{async fetch(req,env){
   if(u.pathname==="/api/reg"){
     const l=low(b.login),p=String(b.pass||"");
     if(!/^[a-z0-9_.-]{3,24}$/.test(l))return J({err:"Логин: 3-24 символа, латиница, цифры, . _ -"},400);
-    if(p.length<6)return J({err:"Пароль: минимум 6 символов"},400);
+    const wk=pwBad(p,l);if(wk)return J({err:wk},400);
     if(await ag(l))return J({err:"Такой логин уже занят"},400);
     const salt=rnd(8);
     await env.KV.put("a:"+l,JSON.stringify({salt,h:await sha(salt+p),vid:rnd(12),data:{}}));
@@ -107,6 +149,26 @@ export default{async fetch(req,env){
     }
     const e=Object.entries(lb).sort((x,y)=>y[1].s-x[1].s),i=e.findIndex(x=>x[0]===m.l);
     return J({top:e.slice(0,10).map(([l,v])=>({l,n:v.n,s:v.s})),me:i<0?null:{r:i+1,s:e[i][1].s}});
+  }
+  if(u.pathname==="/api/chpw"){
+    const m=await who();if(!m)return J({err:"auth"},401);
+    if(m.a.h!==await sha(m.a.salt+String(b.old||"")))return J({err:"Текущий пароль неверный"},403);
+    const n=String(b.new||""),w=pwBad(n,m.l);if(w)return J({err:w},400);
+    if(n===String(b.old))return J({err:"Новый пароль совпадает со старым"},400);
+    m.a.salt=rnd(8);m.a.h=await sha(m.a.salt+n);await env.KV.put("a:"+m.l,JSON.stringify(m.a));return J({ok:1});
+  }
+  if(u.pathname==="/api/acc"){const m=await who();if(!m)return J({err:"auth"},401);const lk={};for(const[k,v]of Object.entries(m.a.links||{}))lk[k]=v.n;return J({lk})}
+  if(u.pathname==="/api/oauth"){
+    const P=oc(b.p);if(!P)return J({err:"Вход через этот сервис не настроен"},503);
+    let l="";if(b.token){const m=await who();if(!m)return J({err:"auth"},401);l=m.l}
+    const st=rnd(16);await env.KV.put("os:"+st,JSON.stringify({p:b.p,l}),{expirationTtl:600});
+    const q=new URLSearchParams({client_id:env[P.ix+"_ID"],redirect_uri:u.origin+"/api/oauth/cb/"+b.p,response_type:"code",state:st});if(P.sc)q.set("scope",P.sc);
+    return J({url:P.au+"?"+q});
+  }
+  if(u.pathname==="/api/unlink"){
+    const m=await who();if(!m)return J({err:"auth"},401);const p=String(b.p||""),o=m.a.links&&m.a.links[p];
+    if(o){if(o.id&&await env.KV.get("o:"+p+":"+o.id)===m.l)await env.KV.delete("o:"+p+":"+o.id);delete m.a.links[p];await env.KV.put("a:"+m.l,JSON.stringify(m.a))}
+    return J({ok:1});
   }
   if(u.pathname==="/api/save"){
     const m=await who();if(!m)return J({err:"auth"},401);
@@ -168,15 +230,9 @@ export default{async fetch(req,env){
     const day="ai:"+m.l+":"+new Date().toISOString().slice(0,10),n=+(await env.KV.get(day)||0);
     if(n>=25)return J({err:"Лимит на сегодня: 25 сообщений. Приходите завтра."},429);
     const ms=(Array.isArray(b.messages)?b.messages:[]).slice(-10).map(x=>({role:x.role==="assistant"?"assistant":"user",content:String(x.content||"").slice(0,1500)}));
-    const sys={role:"system",content:"Ты дружелюбный помощник на сайте. Отвечай по-русски, кратко и по делу."};
-    let reply="",why="";
-    for(const md of ["@cf/meta/llama-3.1-8b-instruct-fast","@cf/zai-org/glm-4.7-flash","@cf/google/gemma-4-26b-a4b-it","@cf/meta/llama-3.3-70b-instruct-fp8-fast"]){
-      try{const r=await env.AI.run(md,{messages:[sys,...ms],max_tokens:500});
-        reply=String(r.response||(r.choices&&r.choices[0]&&r.choices[0].message&&r.choices[0].message.content)||"").trim();if(reply)break}
-      catch(e){why=md+": "+String(e&&e.message||e).slice(0,160)}
-    }
-    if(!reply)return J({err:"ИИ не ответил. "+why},500);
-    await env.KV.put(day,String(n+1),{expirationTtl:90000});return J({reply});
+    try{const r=await env.AI.run("@cf/meta/llama-3.1-8b-instruct",{messages:[{role:"system",content:"Ты дружелюбный помощник на сайте. Отвечай по-русски, кратко и по делу."},...ms],max_tokens:500});
+      await env.KV.put(day,String(n+1),{expirationTtl:90000});return J({reply:String(r.response||"")})}
+    catch(e){return J({err:"Ошибка ИИ, попробуйте позже"},500)}
   }
   // ---- заявки на ключ ----
   const rg=async v=>JSON.parse(await env.KV.get("r:"+v)||"null"),rp=(v,o)=>env.KV.put("r:"+v,JSON.stringify(o));

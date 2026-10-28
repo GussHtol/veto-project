@@ -195,6 +195,9 @@ input[type=range]{padding:0;border:0;background:none;accent-color:var(--a);box-s
 .ckl{margin-top:16px;padding-top:14px;border-top:1px solid var(--l)}.ckl h4{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:8px}
 #clb{max-height:240px;overflow:auto}.lbr{display:flex;align-items:center;gap:10px;padding:7px 10px;border-radius:10px}.lbr.me{background:color-mix(in srgb,var(--a) 20%,transparent)}
 .lbr .rk{width:26px;text-align:center;flex:none;color:var(--m)}.lbr .tt{flex:1;min-width:0}.lbr b{font-variant-numeric:tabular-nums}
+.pwm{height:6px;border-radius:4px;background:rgba(255,255,255,.08);margin:8px 0 4px;overflow:hidden}.pwm i{display:block;height:100%;width:0;border-radius:4px;transition:width .3s var(--e),background .3s}
+.lkr{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--l);border-radius:12px;margin-top:8px}.lkr b{min-width:64px}.lkr small{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--m)}
+.oas{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}.oas .b{flex:1;margin:0;padding:10px}
 body.noanim *{transition:none!important;animation:none!important}
 </style>
 </head>
@@ -253,6 +256,12 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="s" style="margin:14px 0 6px">Красивый баннер</div><div class="sw" id="pbp"></div>
 <div class="s" style="margin:14px 0 6px">Эффект карточки</div><div class="seg" id="pfxs"></div></div>
 <button class="b" id="pcs" style="margin-top:18px">Сохранить профиль</button>
+<div class="lb">Безопасность</div><div class="s" style="margin:-4px 0 8px">Смена пароля. Новый пароль: от 8 символов, с цифрами, заглавными буквами или символами.</div>
+<input id="cp0" type="password" placeholder="Текущий пароль" autocomplete="current-password">
+<input id="cp1" type="password" placeholder="Новый пароль" autocomplete="new-password" style="margin-top:8px"><div class="pwm"><i id="pwb"></i></div><div class="s" id="pwt" style="min-height:18px"></div>
+<input id="cp2" type="password" placeholder="Повторите новый пароль" autocomplete="new-password"><div class="s" id="cpe" style="color:#ff7a7a;min-height:18px;margin-top:6px"></div>
+<button class="b" id="cpb" style="margin-top:6px">Сменить пароль</button>
+<div class="lb">Привязанные аккаунты</div><div class="s" style="margin:-4px 0 4px">Привяжите, чтобы входить одной кнопкой, без пароля.</div><div id="lkl"><span class="s">Загружаю…</span></div>
 <div class="lb">Ключ для друзей</div><div class="kb" id="pk">…</div><button class="b ghost" id="pcp">Копировать ключ</button></aside>
 <aside id="dm" class="g"><h3><button id="dmb" class="hide">‹</button><span id="dmh" style="display:flex;align-items:center;gap:10px">Сообщения</span><button id="dx">✕</button></h3><div id="dml"></div><div id="dmv" class="hide"><div class="chat" id="dmc"></div><div class="row"><button class="b sm ghost" id="dma" style="margin:0" title="Фото или GIF">＋</button><input id="dmi" placeholder="Сообщение" maxlength="500" autocomplete="off"><button class="b sm" id="dms">→</button></div><input type="file" id="dmf" accept="image/*" hidden></div></aside>
 <div id="dec" class="hide"><div class="g dbox"><h3 style="font-size:20px">Украшение аватара</h3><div id="dlk" class="row"><input id="dcode" type="password" placeholder="Пароль для украшений"><button class="b sm" id="dun">Открыть</button></div><div class="dwrap"><div class="dgrid" id="dgr"></div><div class="dpv"><div id="dbig"></div><div id="dsm"></div></div></div><div class="row" style="justify-content:flex-end"><button class="b ghost sm" id="dcn" style="margin:0">Отмена</button><button class="b sm" id="dap">Применить</button></div></div></div>
@@ -677,6 +686,26 @@ function ckInit(){const c=D.clk||{};CK={s:Math.max(0,+c.s||0),t:Math.max(+c.t||0
   document.addEventListener("visibilitychange",()=>{if(document.hidden&&ckD){ckD=0;save()}})}
 
 /* ---- старт ---- */
+(()=>{const h=location.hash.match(/[#&]ot=([0-9a-f]+)/);if(h){TK=h[1];localStorage.setItem("tk",TK);history.replaceState(null,"","/dash")}})();
+/* ---- безопасность: пароль и привязка аккаунтов ---- */
+const OPN={google:"Google",yandex:"Яндекс",vk:"VK"};let OPC=[],LK={};
+function pwScore(p){let c=[/[a-zа-яё]/,/[A-ZА-ЯЁ]/,/[0-9]/,/[^a-zA-Zа-яА-ЯёЁ0-9]/].filter(r=>r.test(p)).length,s=0;if(p.length>=8)s++;if(p.length>=12)s++;if(c>=2)s++;if(c>=3&&p.length>=10)s++;return p?Math.max(1,s):0}
+$("cp1").oninput=()=>{const s=pwScore($("cp1").value),L=[["0%","transparent",""],["25%","#ef4444","Слабый"],["50%","#f59e0b","Так себе"],["75%","#84cc16","Хороший"],["100%","#22c55e","Надёжный"]][s];$("pwb").style.width=L[0];$("pwb").style.background=L[1];$("pwt").textContent=L[2]};
+$("cpb").onclick=async()=>{const e=$("cpe");e.textContent="";const a=$("cp0").value,n=$("cp1").value;
+  if(!a||!n)return e.textContent="Заполните все поля";if(n!==$("cp2").value)return e.textContent="Новые пароли не совпадают";
+  const b=$("cpb");b.disabled=true;try{await api("chpw",{token:TK,old:a,new:n});["cp0","cp1","cp2"].forEach(i=>$(i).value="");$("cp1").oninput();toast("Пароль изменён")}catch(x){e.textContent=x&&x.err||"Сервер недоступен"}b.disabled=false};
+function lkDraw(){$("lkl").innerHTML=Object.keys(OPN).map(k=>{const on=OPC.some(o=>o.k===k),n=LK[k];
+  return `<div class="lkr"><b>${OPN[k]}</b><small>${n?esc(n):on?"не привязан":"пока не настроено"}</small>${n?`<button class="b sm ghost" style="margin:0" data-u="${k}">Отвязать</button>`:`<button class="b sm" style="margin:0" data-l="${k}"${on?"":" disabled"}>Привязать</button>`}</div>`}).join("")}
+async function lkLoad(){try{OPC=(await(await fetch("/api/oauth/cfg",{cache:"no-store"})).json()).op||[]}catch{}try{LK=(await api("acc",{token:TK})).lk||{}}catch{}lkDraw()}
+async function oGo(p,tok){try{const r=await api("oauth",{p,token:tok});location.href=r.url}catch(x){toast(x&&x.err||"Сервер недоступен")}}
+$("lkl").onclick=async e=>{const l=e.target.closest("[data-l]"),u=e.target.closest("[data-u]");
+  if(l)return oGo(l.dataset.l,TK);
+  if(u&&confirm("Отвязать "+OPN[u.dataset.u]+"? Входить через него больше не получится."))try{await api("unlink",{token:TK,p:u.dataset.u});delete LK[u.dataset.u];lkDraw();toast("Отвязано")}catch{toast("Не удалось отвязать")}};
+$("gp").addEventListener("click",lkLoad);
+fetch("/api/oauth/cfg",{cache:"no-store"}).then(r=>r.json()).then(j=>{if(!j.op||!j.op.length)return;const d=document.createElement("div");d.className="oas";d.innerHTML=j.op.map(o=>`<button type="button" class="b ghost" data-o="${o.k}">${esc(o.n)}</button>`).join("");d.onclick=e=>{const b=e.target.closest("[data-o]");if(b)oGo(b.dataset.o,"")};$("af").appendChild(d)}).catch(()=>{});
+(()=>{const q=new URLSearchParams(location.search),M={1:"Не удалось войти через сервис",2:"Этот аккаунт уже привязан к другому профилю",3:"Этот аккаунт ни к чему не привязан. Войдите по паролю и привяжите его в профиле."};
+  if(q.get("oerr")||q.get("linked")){setTimeout(()=>toast(q.get("linked")?(OPN[q.get("linked")]||"Аккаунт")+" привязан":M[q.get("oerr")]||M[1]),900);history.replaceState(null,"","/dash")}})();
+
 if(TK)api("me",{token:TK}).then(r=>{Object.assign(D,r.data);PERK=!!r.perk;start(r.login)}).catch(()=>{localStorage.removeItem("tk");TK=null;showAuth()});else showAuth();
 </script>
 </body>
