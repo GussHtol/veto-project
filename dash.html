@@ -4,6 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Кабинет</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0b0d13">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
 <style>
 :root{--a:#ff6b5e;--p:rgba(24,27,36,.62);--l:rgba(255,255,255,.1);--t:#eef0f5;--m:#8b91a0;--e:cubic-bezier(.3,.8,.3,1);--r:18px}
 *{box-sizing:border-box;margin:0}
@@ -232,7 +236,8 @@ body.noanim *{transition:none!important;animation:none!important}
 <div class="lb">Масштаб интерфейса: <span id="zv"></span>%</div><input type="range" id="rz" min="85" max="125" step="5">
 <div class="lb">Обои</div><div class="wps" id="wps"></div>
 <div class="tgr"><button class="tg" id="an"></button><div>Плавные анимации<br><span class="s">Переходы и появление блоков</span></div></div>
-<button class="b ghost" id="snt" style="margin-top:22px">Включить уведомления</button>
+<button class="b ghost hide" id="inst" style="margin-top:22px">Установить приложение</button>
+<button class="b ghost" id="snt" style="margin-top:12px">Включить уведомления</button>
 <button class="b ghost" id="rs" style="margin-top:26px">Сбросить настройки</button></aside>
 <aside id="pf" class="g"><h3>Профиль<button id="px">✕</button></h3><div id="ppv"></div>
 <div class="lb">Аватар</div><div class="s" style="margin:-4px 0 8px">Живой аватар и анимированный баннер (GIF, MP4, до 24 МБ) доступны по паролю.</div><div class="row"><button class="b sm" id="pup">Загрузить фото</button><button class="b sm ghost" id="prm" style="margin:0">Убрать</button></div><input type="file" id="pfi" accept="image/*,video/mp4,video/webm" hidden>
@@ -490,7 +495,15 @@ function pview(f){const p=f.prof||{},n=p.n||f.name,sk=Date.now()-f.last<45000?(p
   $("pvc").onclick=()=>$("pvw").classList.add("hide")}
 $("pvw").onclick=e=>{if(e.target.id==="pvw")$("pvw").classList.add("hide")};
 $("dmh").onclick=()=>{if(DM)pview(DM)};
-function notify(t,b){toast(t);try{if("Notification" in window&&Notification.permission==="granted")new Notification(t,{body:b,icon:"cover.jpg"})}catch{}}
+function notify(t,b){toast(t);try{if(!("Notification" in window)||Notification.permission!=="granted"||(!document.hidden&&document.hasFocus()))return;
+  const o={body:b,icon:"/icon-192.png",badge:"/icon-192.png",tag:"kab"};
+  if(navigator.serviceWorker)navigator.serviceWorker.ready.then(r=>r.showNotification(t,o)).catch(()=>new Notification(t,o));else new Notification(t,o)}catch{}}
+/* ---- установка как приложение (PWA) ---- */
+if("serviceWorker" in navigator)navigator.serviceWorker.register("/sw.js").catch(()=>{});
+let IP=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();IP=e;$("inst").classList.remove("hide")});
+$("inst").onclick=async()=>{if(!IP)return;IP.prompt();try{await IP.userChoice}catch{}IP=null;$("inst").classList.add("hide")};
+addEventListener("appinstalled",()=>{IP=null;$("inst").classList.add("hide");toast("Приложение установлено")});
 function anRefresh(){const g="Notification" in window&&Notification.permission==="granted";$("ant").textContent=g?"Уведомления: включены":"Включить уведомления";$("snt").textContent=g?"Уведомления включены":"Включить уведомления"}
 async function askNotif(){if(!("Notification" in window))return toast("Браузер не поддерживает уведомления");
   const p=Notification.permission==="denied"?"denied":await Notification.requestPermission();anRefresh();
