@@ -304,7 +304,7 @@ function start(l){
   LOGIN=l;$("usr").textContent="@"+l;
   $("qp").textContent="«Лучший способ предсказать будущее — создать его.»";
   tick();setInterval(tick,1000);key();setInterval(()=>key(),5000);sync();setInterval(sync,15000);setInterval(poll,5000);cfg();pcfg();ping();setInterval(ping,2000);setInterval(nets,1000);anRefresh();loadTracks();ckInit();if(ADM)startAdm();
-  au.volume=.45;au.play().catch(()=>{});
+  au.volume=.45;
 }
 function tick(){const d=new Date();$("clk").textContent=d.toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"});$("dt").textContent=d.toLocaleDateString("ru",{weekday:"long",day:"numeric",month:"long"})}
 $("q").onkeydown=e=>{if(e.key!=="Enter")return;const v=e.target.value.trim();if(!v)return;/^[\w-]+(\.[\w-]+)+(\/\S*)?$/.test(v)?open("https://"+v,"_blank"):doSearch(v)};
