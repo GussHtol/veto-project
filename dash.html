@@ -342,7 +342,7 @@ $("out").onclick=out;
 async function key(t,go){
   const el=$("wk");let r;try{r=await api("req",{token:TK,text:t,start:go})}catch(e){if(e.err==="auth")out();return}
   if(r.none){ks="";el.innerHTML='<h3>Ключ доступа</h3><p class="s" style="margin-bottom:16px">Подайте заявку, и бот выдаст вам ключ. Ожидание обычно от 10 минут до часа.</p><button class="b" id="kg">Получить ключ</button>';$("kg").onclick=()=>key(0,1);return}
-  if(ks!=="c"){ks="c";el.innerHTML='<h3>Ключ доступа <span class="chip" id="kst"></span></h3><p class="s" id="khn"></p><div class="chat" id="kc"></div><div class="row"><input id="kx" placeholder="Сообщение боту"><button class="b sm" id="ks">→</button></div><a class="b ghost hide" id="ko" href="/">Открыть приложение</a>';
+  if(ks!=="c"){ks="c";el.innerHTML='<h3>Ключ доступа <span class="chip" id="kst"></span></h3><p class="s" id="khn"></p><div class="chat" id="kc"></div><div class="row"><input id="kx" placeholder="Сообщение боту"><button class="b sm" id="ks">→</button></div><a class="b ghost hide" id="ko" href="/?key">Открыть приложение</a>';
     $("ks").onclick=()=>{const v=$("kx").value.trim();if(v){$("kx").value="";key(v)}};$("kx").onkeydown=e=>{if(e.key==="Enter")$("ks").click()}}
   const c=$("kc"),low=c.scrollTop+c.clientHeight>=c.scrollHeight-30;
   c.innerHTML=r.msgs.map(m=>`<div class="mg${m.f==="v"?" me":""}"><small>${m.f==="b"?"Бот":"Вы"} ${new Date(m.ts).toLocaleTimeString("ru",{hour:"2-digit",minute:"2-digit"})}</small>${esc(m.t)}</div>`).join("");
